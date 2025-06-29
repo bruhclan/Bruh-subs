@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bruh subs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0e0 100%);
+      margin: 0;
+      padding: 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .bg-shape1 {
+      position: absolute;
+      top: -120px;
+      left: -120px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle at 60% 40%, #ff9800 0%, #ff7043 80%);
+      opacity: 0.18;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .bg-shape2 {
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle at 40% 60%, #ff5252 0%, #ff9800 90%);
+      opacity: 0.15;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .main-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 28px;
+      box-shadow: 0 8px 32px 0 rgba(255, 112, 67, 0.10);
+      padding: 48px 38px 38px 38px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      flex: 1 0 auto;
+      padding-top: 48px;
+      padding-bottom: 0;
+    }
+    h1 {
+      font-size: 2.6rem;
+      margin-bottom: 10px;
+      color: #ff7043;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      text-shadow: 0 2px 8px rgba(255, 112, 67, 0.08);
+    }
+    .subtitle {
+      color: #ff9800;
+      margin-bottom: 32px;
+      font-size: 1.18rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .effect-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 10px;
+    }
+    .effect-btn {
+      padding: 16px 0;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #ff7043 60%, #ff9800 100%);
+      color: #fff;
+      font-size: 1.18rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(255, 112, 67, 0.10);
+      letter-spacing: 0.2px;
+    }
+    .effect-btn:hover {
+      background: linear-gradient(90deg, #ff9800 60%, #ff7043 100%);
+    }
+    .form-section {
+      margin-top: 30px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin: 20px 0 7px 0;
+      color: #ff7043;
+      font-weight: 700;
+      font-size: 1.08rem;
+      letter-spacing: 0.1px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      border: 1.5px solid #ffd6c2;
+      font-size: 1.08rem;
+      box-sizing: border-box;
+      font-family: 'Inter', Arial, sans-serif;
+      background: #fff7f0;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border: 1.5px solid #ff7043;
+      outline: none;
+      background: #fff;
+    }
+    button.generate {
+      background: linear-gradient(90deg, #ff7043 60%, #ff9800 100%);
+      color: #fff;
+      border: none;
+      font-size: 1.18rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(255, 112, 67, 0.10);
+      transition: background 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.2px;
+    }
+    button.generate:hover {
+      background: linear-gradient(90deg, #ff9800 60%, #ff7043 100%);
+    }
+    textarea {
+      height: 180px;
+      resize: vertical;
+      background: #fff7f0;
+      border-radius: 12px;
+      font-size: 1.08rem;
+    }
+    .back-btn {
+      background: #ffe0b2;
+      color: #ff7043;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 26px;
+      font-size: 1.08rem;
+      margin-bottom: 18px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.2s;
+      letter-spacing: 0.1px;
+    }
+    .back-btn:hover {
+      background: #ffd6c2;
+    }
+    #errorMsg {
+      display: none;
+      color: #fff;
+      background: #ff5252;
+      padding: 14px 22px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      font-weight: 700;
+      font-size: 1.08rem;
+      box-shadow: 0 2px 8px rgba(255,82,82,0.10);
+      letter-spacing: 0.2px;
+    }
+    #durationBarContainer {
+      background: #fff3e0;
+      border-radius: 16px;
+      padding: 20px 20px 10px 20px;
+      box-shadow: 0 2px 8px rgba(255, 112, 67, 0.06);
+      margin-bottom: 28px;
+    }
+    #resolveBar {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    #resolveBarBg {
+      background: #ffe0b2;
+    }
+    #resolveBarEffect {
+      background: linear-gradient(90deg, #ff7043 60%, #ff9800 100%);
+      box-shadow: 0 2px 8px rgba(255, 112, 67, 0.10);
+    }
+    #handleStart, #handleEnd {
+      background: #fff;
+      border: 2.5px solid #ff7043;
+      box-shadow: 0 2px 8px rgba(255, 112, 67, 0.10);
+      transition: border 0.2s;
+    }
+    #handleStart:hover, #handleEnd:hover {
+      border: 2.5px solid #ff9800;
+    }
+    #effectTooltip {
+      background: #ff7043;
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 7px 18px;
+      box-shadow: 0 2px 8px rgba(255, 112, 67, 0.10);
+      letter-spacing: 0.2px;
+    }
+    .footer {
+      width: 100%;
+      text-align: center;
+      padding: 22px 0 12px 0;
+      color: #fff;
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      background: linear-gradient(90deg, #ff7043 60%, #ff9800 100%);
+      border-radius: 0;
+      margin: 0;
+      box-shadow: 0 -2px 12px rgba(255, 112, 67, 0.10);
+      flex-shrink: 0;
+    }
+    /* Responsive */
+    @media (max-width: 700px) {
+      .main-container {
+        max-width: 98vw;
+        padding: 18px 4vw 18px 4vw;
+      }
+      #durationBarContainer {
+        padding: 12px 4vw 8px 4vw;
+      }
+      .footer {
+        font-size: 1rem;
+        padding: 22px 0 12px 0;
+        border-radius: 0 0 16px 16px;
+      }
+    }
+    .slide-in {
+      animation: slideIn 0.7s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateY(40px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.6s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    body.dark {
+      background: #18191d !important;
+    }
+    .main-container.dark {
+      background: #23242a !important;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18) !important;
+    }
+    .footer.dark {
+      background: linear-gradient(90deg,#ff7043 60%,#ff9800 100%) !important;
+      color: #fff !important;
+    }
+    input.dark, select.dark, textarea.dark {
+      background: #23242a !important;
+      color: #fff !important;
+      border-color: #444 !important;
+    }
+    #output.dark {
+      background: #18191d !important;
+      color: #fff !important;
+    }
+    #durationBarContainer.dark {
+      background: #18191d !important;
+    }
+    #resolveBarBg.dark {
+      background: #333 !important;
+    }
+    .ripple {
+      position: relative;
+      overflow: hidden;
+    }
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      background: rgba(255,152,0,0.25);
+      pointer-events: none;
+      z-index: 2;
+    }
+    @keyframes ripple {
+      to {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+    .output-highlight {
+      animation: outputHighlight 0.7s cubic-bezier(.2,1.8,.5,1.1);
+      background: linear-gradient(90deg, #ff9800 0%, #ff7043 100%);
+      color: #fff !important;
+    }
+    @keyframes outputHighlight {
+      0% { background: transparent; color: inherit; }
+      30% { background: linear-gradient(90deg, #ff9800 0%, #ff7043 100%); color: #fff; }
+      100% { background: transparent; color: inherit; }
+    }
+    .copied-anim {
+      position: absolute;
+      right: 24px;
+      top: -36px;
+      font-size: 1.1rem;
+      color: #ff9800;
+      background: #fff;
+      border-radius: 8px;
+      padding: 4px 16px;
+      box-shadow: 0 2px 8px rgba(255,112,67,0.10);
+      opacity: 0;
+      pointer-events: none;
+      animation: copiedFade 1.2s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    @keyframes copiedFade {
+      0% { opacity: 0; transform: translateY(10px); }
+      20% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+    .slide-out {
+      animation: slideOut 0.5s cubic-bezier(.2,1.8,.5,1.1) forwards;
+    }
+    @keyframes slideOut {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(40px); }
+    }
+    .bg-fade {
+      transition: background 0.5s cubic-bezier(.2,1.8,.5,1.1), color 0.5s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    .main-container, .footer {
+      transition: background 0.5s cubic-bezier(.2,1.8,.5,1.1), color 0.5s cubic-bezier(.2,1.8,.5,1.1), box-shadow 0.5s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    .main-container.slide-in {
+      animation: slideIn 0.7s cubic-bezier(.2,1.8,.5,1.1);
+    }
+    .main-container.slide-out {
+      animation: slideOut 0.5s cubic-bezier(.2,1.8,.5,1.1) forwards;
+    }
+    .coloranim-preview {
+      background: #fff7f0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      font-size: 1.25rem;
+      font-weight: bold;
+      min-height: 38px;
+      color: #222b45;
+      transition: background 0.4s, color 0.4s;
+    }
+    .coloranim-output {
+      background: #f7fafd;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: monospace;
+      font-size: 1.04rem;
+      color: #222b45;
+      border: 1.5px solid #e3eaf2;
+      min-height: 120px;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      transition: background 0.4s, color 0.4s;
+    }
+    .dark .coloranim-preview {
+      background: #23242a;
+      color: #fff;
+    }
+    .dark .coloranim-output {
+      background: #18191d;
+      color: #fff;
+      border-color: #333;
+    }
+    .coloranim-btns {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .coloranim-btns .generate {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 100%;
+      margin: 0;
+      height: 48px;
+      font-size: 1.13rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="darkModeToggle" style="position:fixed;top:24px;right:32px;z-index:1001;cursor:pointer;font-size:2rem;transition:color 0.3s;"></div>
+  <div class="bg-shape1"></div>
+  <div class="bg-shape2"></div>
+  <div class="main-container" id="main">
+    <h1 id="main-title" style="font-size:2.8rem;margin-bottom:0.5em;">Bruh subs</h1>
+    <div class="subtitle" id="main-subtitle" style="margin-bottom:2.2em;">
+      <span id="bruhclan-sub" style="display:block;font-size:1.35rem;color:#ff7043;font-weight:700;margin-top:0.1em;">Made by Bruh Clan</span>
+    </div>
+    <div id="effect-list" style="display:flex;flex-direction:column;align-items:center;gap:2.5em;margin-top:0.5em;">
+      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('accel')">Acceleration/Deceleration Movement</button>
+      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
+      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('wave')">Wave Text Animation</button>
+    </div>
+    <div id="effect-ui"></div>
+  </div>
+  <div class="footer" id="footer" style="display:none;">Made by Bruh Clan</div>
+  <div id="toast" style="display:none;position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:linear-gradient(90deg,#ff7043 60%,#ff9800 100%);color:#fff;padding:18px 36px;border-radius:16px;font-size:1.12rem;font-weight:700;box-shadow:0 2px 12px rgba(255,112,67,0.12);z-index:9999;letter-spacing:0.2px;transition:opacity 0.3s;opacity:0.98;pointer-events:none;"></div>
+  <div id="outputAnim" style="display:none;position:absolute;top:30px;right:30px;font-size:2.2rem;color:#ff9800;z-index:10;"></div>
+  <script>
+    // Dark mode toggle
+    let darkMode = false;
+    function setDarkMode(on) {
+      darkMode = on;
+      document.body.classList.toggle('dark', on);
+      document.body.classList.add('bg-fade');
+      document.getElementById('darkModeToggle').innerHTML = on ? '🌙' : '☀️';
+      // Update bg shapes
+      document.querySelectorAll('.bg-shape1, .bg-shape2').forEach(el => {
+        el.style.opacity = on ? 0.10 : (el.classList.contains('bg-shape1') ? 0.18 : 0.15);
+      });
+      // Main container and footer
+      document.querySelector('.main-container').classList.toggle('dark', on);
+      document.querySelector('.main-container').classList.add('bg-fade');
+      document.querySelector('.footer').classList.toggle('dark', on);
+      document.querySelector('.footer').classList.add('bg-fade');
+      // Inputs, selects, textarea
+      document.querySelectorAll('input,select,textarea').forEach(el => {
+        el.classList.toggle('dark', on);
+      });
+      // Output textarea
+      document.getElementById('output').classList.toggle('dark', on);
+      // Duration bar
+      document.getElementById('durationBarContainer').classList.toggle('dark', on);
+      document.getElementById('resolveBarBg').classList.toggle('dark', on);
+    }
+    document.getElementById('darkModeToggle').onclick = () => setDarkMode(!darkMode);
+    setDarkMode(false);
+    function selectEffect(effect) {
+      // Hide main menu and subtitle
+      document.getElementById('effect-list').style.display = 'none';
+      document.getElementById('main-subtitle').style.display = 'none';
+      // Show footer
+      document.getElementById('footer').style.display = 'block';
+      // Set effect title
+      const title = document.getElementById('main-title');
+      if (effect === 'accel') {
+        title.textContent = 'Acceleration/Deceleration Movement';
+        showAccelUI();
+      } else if (effect === 'coloranim') {
+        title.textContent = 'Letter-by-letter Color Animation';
+        showColorAnimUI();
+      } else if (effect === 'wave') {
+        title.textContent = 'Wave Text Animation';
+        showWaveUI();
+      }
+    }
+    function backToMenu() {
+      const mainContainer = document.querySelector('.main-container');
+      mainContainer.classList.remove('slide-in');
+      mainContainer.classList.add('slide-out');
+      setTimeout(() => {
+        document.getElementById('effect-list').style.display = 'flex';
+        document.getElementById('effect-ui').innerHTML = '';
+        document.getElementById('main-subtitle').style.display = 'block';
+        document.getElementById('footer').style.display = 'none';
+        document.getElementById('main-title').textContent = 'Bruh subs';
+        mainContainer.classList.remove('slide-out');
+        mainContainer.classList.add('slide-in');
+      }, 500);
+    }
+    function showAccelUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      // Remove slide-out if present
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Paste your ASS Dialogue line below:</label>
+          <input id="dialogueLine" type="text" placeholder="Dialogue: 0,0:01:20.90,0:01:22.37,Romaji,,0,0,0,,{\\pos(1656,885)}Demolish this story">
+          <div style="color:#ff9800;font-size:0.98rem;margin-bottom:18px;">Paste a full line from your .ass file. If it contains a {\\pos(x,y)} tag, it will be used for the start position.</div>
+
+          <label>Start Position (e.g. {\pos(1656,885)}):</label>
+          <input id="startPos" type="text" placeholder="{\pos(1656,885)}">
+
+          <label>End Position (e.g. {\pos(961,1068)}):</label>
+          <input id="endPos" type="text" placeholder="{\pos(961,1068)}">
+
+          <label>Middle Position (optional, e.g. {\pos(1200,900)}):</label>
+          <input id="midPos" type="text" placeholder="{\pos(1200,900)}">
+
+          <label>Movement Type:</label>
+          <select id="accelType">
+            <option value="accel">Accelerate (speed up)</option>
+            <option value="decel">Decelerate (slow down)</option>
+          </select>
+
+          <label>Effect Extremity:</label>
+          <input id="extremity" type="range" min="1" max="5" value="2" step="0.1" oninput="document.getElementById('extremityValue').innerText = this.value">
+          <span id="extremityValue" style="font-weight:500; color:#ff7043;">2</span>
+          <span style="font-size:0.95rem; color:#ff9800;">(Higher = more extreme acceleration/deceleration)</span>
+
+          <div id="durationBarContainer" style="margin: 30px 0 18px 0;">
+            <label style="display:block; margin-bottom:8px;">Effect Duration within Subtitle:</label>
+            <div id="resolveBar" style="position:relative; height:38px; user-select:none;">
+              <div id="resolveBarBg" style="background:#ffe0b2; border-radius:8px; height:16px; width:100%; position:absolute; top:10px;"></div>
+              <div id="resolveBarEffect" style="background:#ff7043; border-radius:8px; height:16px; position:absolute; top:10px; cursor:pointer;"></div>
+              <div id="effectTooltip" style="display:none; position:absolute; top:-28px; left:50%; transform:translateX(-50%); background:#ff7043; color:#fff; padding:4px 10px; border-radius:6px; font-size:0.98rem; pointer-events:none; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,0.12);"></div>
+              <div id="handleStart" style="position:absolute; top:4px; left:0; width:16px; height:28px; background:#fff; border:2px solid #ff7043; border-radius:6px; cursor:ew-resize; box-shadow:0 2px 8px rgba(0,0,0,0.08);"></div>
+              <div id="handleEnd" style="position:absolute; top:4px; right:0; width:16px; height:28px; background:#fff; border:2px solid #ff7043; border-radius:6px; cursor:ew-resize; box-shadow:0 2px 8px rgba(0,0,0,0.08);"></div>
+              <span id="barTimeStart" style="position:absolute; left:0; top:28px; font-size:0.95rem; color:#ff9800;">0.00s</span>
+              <span id="barTimeEnd" style="position:absolute; right:0; top:28px; font-size:0.95rem; color:#ff9800;">0.00s</span>
+            </div>
+            <div id="effectDurationDisplay" style="text-align:center; margin-top:12px; color:#ff7043; font-size:1.12rem; font-weight:700; letter-spacing:0.1px;"></div>
+          </div>
+
+          <button class="generate ripple" onclick="generateAccel()" id="generateBtn">Generate</button>
+          <button class="generate ripple" style="background:#ff7043;margin-top:0;position:relative;" onclick="copyOutput()" id="copyBtn">Copy to Clipboard</button>
+
+          <label>Output:</label>
+          <textarea id="output"></textarea>
+        </div>
+      `;
+      // Animate in
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth; // force reflow
+      mainContainer.classList.add('slide-in');
+      setupResolveBar();
+      setupCurveEditor();
+      // Clear error on input
+      ["dialogueLine","startPos","endPos","midPos"].forEach(id => {
+        document.getElementById(id).addEventListener('input', clearErrorMsg);
+      });
+      // Back button animation
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        backToMenu();
+      };
+      // Add ripple to generate/copy
+      document.getElementById('generateBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateAccel();
+      };
+      document.getElementById('copyBtn').onclick = function(e) {
+        buttonRipple(e);
+        copyOutput();
+      };
+    }
+    function showErrorMsg(msg) {
+      const errorDiv = document.getElementById('errorMsg');
+      if (errorDiv) {
+        errorDiv.innerText = msg;
+        errorDiv.style.display = 'block';
+      }
+      showToast(msg);
+    }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      toast.style.opacity = '0.98';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(()=>{toast.style.display='none';}, 400);
+      }, 2200);
+    }
+    function clearErrorMsg() {
+      const errorDiv = document.getElementById('errorMsg');
+      if (errorDiv) errorDiv.style.display = 'none';
+    }
+    function parsePosTag(posTag) {
+      // Accepts {\pos(x,y)}
+      if (!posTag) return null;
+      const match = posTag.match(/\\pos\((\d+),(\d+)\)/);
+      if (!match) return null;
+      return { x: parseInt(match[1]), y: parseInt(match[2]) };
+    }
+    function parseDialogueLine(line) {
+      // Dialogue: 0,0:01:20.90,0:01:22.37,Romaji,,0,0,0,,{\pos(1656,885)}Demolish this story
+      const parts = line.split(',');
+      if (parts.length < 10) return null;
+      const start = parts[1].trim();
+      const end = parts[2].trim();
+      // Text may contain commas, so join the rest
+      const text = parts.slice(9).join(',').replace(/^ */, '');
+      // Try to extract {\pos(x,y)}
+      let posMatch = text.match(/\\pos\((\d+),(\d+)\)/);
+      let posTag = posMatch ? `{\\pos(${posMatch[1]},${posMatch[2]})}` : '';
+      return { start, end, text, posTag };
+    }
+    function msToASS(ms) {
+      let total = ms/1000;
+      let h = Math.floor(total/3600);
+      let m = Math.floor((total%3600)/60);
+      let s = (total%60).toFixed(2).padStart(5,'0');
+      return `${h}:${m.toString().padStart(2,'0')}:${s}`;
+    }
+    function setupResolveBar() {
+      const dialogueInput = document.getElementById('dialogueLine');
+      const barStart = document.getElementById('barTimeStart');
+      const barEnd = document.getElementById('barTimeEnd');
+      const bar = document.getElementById('resolveBar');
+      const effectBar = document.getElementById('resolveBarEffect');
+      const handleStart = document.getElementById('handleStart');
+      const handleEnd = document.getElementById('handleEnd');
+      const tooltip = document.getElementById('effectTooltip');
+      const effectDurationDisplay = document.getElementById('effectDurationDisplay');
+      let totalDuration = 0;
+      let dragging = null;
+      let effectStart = 0; // 0-1
+      let effectEnd = 1;   // 0-1
+      function updateBar() {
+        const parsed = parseDialogueLine(dialogueInput.value);
+        if (!parsed) {
+          totalDuration = 0;
+          barStart.innerText = '0.00s';
+          barEnd.innerText = '0.00s';
+          effectBar.style.left = '0%';
+          effectBar.style.width = '100%';
+          handleStart.style.left = '0%';
+          handleEnd.style.left = 'calc(100% - 16px)';
+          tooltip.style.display = 'none';
+          effectDurationDisplay.innerText = '';
+          return;
+        }
+        const startMS = timeToMS(parsed.start);
+        const endMS = timeToMS(parsed.end);
+        totalDuration = (endMS - startMS) / 1000;
+        barStart.innerText = '0.00s';
+        barEnd.innerText = totalDuration.toFixed(2) + 's';
+        // Update effect bar and handles
+        effectBar.style.left = (effectStart*100) + '%';
+        effectBar.style.width = ((effectEnd-effectStart)*100) + '%';
+        handleStart.style.left = `calc(${effectStart*100}% - 0px)`;
+        handleEnd.style.left = `calc(${effectEnd*100}% - 16px)`;
+        // Tooltip update
+        const effectDurationMS = Math.round((effectEnd-effectStart) * (endMS-startMS));
+        tooltip.innerText = msToASS(effectDurationMS);
+        effectDurationDisplay.innerText = 'Effect Duration: ' + msToASS(effectDurationMS);
+      }
+      function onDrag(e, which) {
+        dragging = which;
+        e.preventDefault();
+      }
+      function onMove(e) {
+        if (!dragging) return;
+        const rect = bar.getBoundingClientRect();
+        let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        let percent = Math.max(0, Math.min(1, x / rect.width));
+        if (dragging === 'start') {
+          effectStart = Math.min(percent, effectEnd-0.01);
+        } else if (dragging === 'end') {
+          effectEnd = Math.max(percent, effectStart+0.01);
+        }
+        updateBar();
+      }
+      function onUp() { dragging = null; }
+      handleStart.addEventListener('mousedown', e => onDrag(e, 'start'));
+      handleEnd.addEventListener('mousedown', e => onDrag(e, 'end'));
+      handleStart.addEventListener('touchstart', e => onDrag(e, 'start'));
+      handleEnd.addEventListener('touchstart', e => onDrag(e, 'end'));
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchmove', onMove);
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+      dialogueInput.addEventListener('input', updateBar);
+      // Tooltip show/hide and move
+      effectBar.addEventListener('mouseenter', function(e) {
+        tooltip.style.display = 'block';
+        positionTooltip();
+      });
+      effectBar.addEventListener('mousemove', function(e) {
+        tooltip.style.display = 'block';
+        positionTooltip();
+      });
+      effectBar.addEventListener('mouseleave', function(e) {
+        tooltip.style.display = 'none';
+      });
+      function positionTooltip() {
+        // Center tooltip above effectBar
+        const effectRect = effectBar.getBoundingClientRect();
+        const barRect = bar.getBoundingClientRect();
+        const left = effectRect.left - barRect.left + effectRect.width/2;
+        tooltip.style.left = `${left}px`;
+      }
+      updateBar();
+      // Save to window for generateAccel
+      window._effectRange = () => [effectStart, effectEnd];
+    }
+    function timeToMS(time) {
+      // e.g. 0:01:20.90
+      let parts = time.split(':');
+      let h = parseInt(parts[0]), m = parseInt(parts[1]), s = parseFloat(parts[2]);
+      return Math.round((h*3600 + m*60 + s) * 1000);
+    }
+    function msToTime(ms) {
+      let total = ms/1000;
+      let h = Math.floor(total/3600);
+      let m = Math.floor((total%3600)/60);
+      let s = (total%60).toFixed(2);
+      return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(5,'0')}`;
+    }
+    function setupCurveEditor() {
+      const svg = document.getElementById('curveEditor');
+      if (!svg) return;
+      svg.innerHTML = '';
+      const width = svg.clientWidth || 400;
+      const height = svg.clientHeight || 200;
+      // Start/end points
+      let start = { x: 60, y: height-40 };
+      let end = { x: width-60, y: 40 };
+      // Control point (default: center, can be dragged)
+      let ctrl = { x: width/2, y: height/2 };
+      const ctrlDefault = { x: width/2, y: height/2 };
+      // Draw function
+      function draw() {
+        svg.innerHTML = '';
+        // Path
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d', `M${start.x},${start.y} Q${ctrl.x},${ctrl.y} ${end.x},${end.y}`);
+        path.setAttribute('stroke', '#ff7043');
+        path.setAttribute('stroke-width', '4');
+        path.setAttribute('fill', 'none');
+        svg.appendChild(path);
+        // Start/end dots
+        [start, end].forEach(pt => {
+          const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          c.setAttribute('cx', pt.x);
+          c.setAttribute('cy', pt.y);
+          c.setAttribute('r', 10);
+          c.setAttribute('fill', '#ff9800');
+          c.setAttribute('stroke', '#fff');
+          c.setAttribute('stroke-width', '3');
+          svg.appendChild(c);
+        });
+        // Control dot
+        const ctrlDot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ctrlDot.setAttribute('cx', ctrl.x);
+        ctrlDot.setAttribute('cy', ctrl.y);
+        ctrlDot.setAttribute('r', 12);
+        ctrlDot.setAttribute('fill', '#fff');
+        ctrlDot.setAttribute('stroke', '#ff7043');
+        ctrlDot.setAttribute('stroke-width', '4');
+        ctrlDot.setAttribute('cursor', 'pointer');
+        ctrlDot.setAttribute('id', 'curveCtrlDot');
+        svg.appendChild(ctrlDot);
+      }
+      draw();
+      // Drag logic
+      let dragging = false;
+      let dragStart = null;
+      svg.addEventListener('mousedown', function(e) {
+        const rect = svg.getBoundingClientRect();
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+        if (Math.hypot(mx-ctrl.x, my-ctrl.y) < 18) {
+          dragging = true;
+          dragStart = { x: ctrl.x, y: ctrl.y };
+        }
+      });
+      svg.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        const rect = svg.getBoundingClientRect();
+        // Allow dragging anywhere within SVG, and even further outside for more curve
+        ctrl.x = Math.max(-200, Math.min(width+200, e.clientX - rect.left));
+        ctrl.y = Math.max(-200, Math.min(height+200, e.clientY - rect.top));
+        draw();
+      });
+      svg.addEventListener('mouseup', function(e) {
+        if (dragging) {
+          // Bouncy effect
+          let t = 0, startX = ctrl.x, startY = ctrl.y;
+          let bounce = () => {
+            t += 0.12;
+            let k = Math.exp(-2*t) * Math.cos(8*t);
+            ctrl.x = startX + k*4;
+            ctrl.y = startY + k*4;
+            draw();
+            if (Math.abs(k) > 0.01) requestAnimationFrame(bounce);
+          };
+          bounce();
+        }
+        dragging = false;
+      });
+      svg.addEventListener('mouseleave', function(e) { dragging = false; });
+      // Reset function
+      window._curveEditor = {
+        getCurve: () => ({ start, ctrl, end }),
+        reset: () => {
+          ctrl.x = ctrlDefault.x;
+          ctrl.y = ctrlDefault.y;
+          draw();
+        }
+      };
+    }
+    function generateAccel() {
+      clearErrorMsg();
+      const dialogueLine = document.getElementById('dialogueLine').value;
+      const startPosTag = document.getElementById('startPos').value;
+      const endPosTag = document.getElementById('endPos').value;
+      const midPosTag = document.getElementById('midPos').value;
+      const accelType = document.getElementById('accelType').value;
+      const extremity = parseFloat(document.getElementById('extremity').value);
+      const parsed = parseDialogueLine(dialogueLine);
+      if (!parsed) {
+        showErrorMsg('Invalid Dialogue line format.');
+        document.getElementById('output').value = '';
+        return;
+      }
+      const { start, end, text } = parsed;
+      const startMS = timeToMS(start);
+      const endMS = timeToMS(end);
+      const duration = endMS - startMS;
+      let frameTime = 20; // 20ms per frame for smoothness
+      let frames = Math.floor(duration / frameTime);
+      // Get effect range from bar
+      let [s, e] = (window._effectRange ? window._effectRange() : [0,1]);
+      let effectStartMS = startMS + Math.round(duration * s);
+      let effectEndMS = startMS + Math.round(duration * e);
+      // Parse start, middle, and end pos
+      const startPos = parsePosTag(startPosTag);
+      const endPos = parsePosTag(endPosTag);
+      const midPos = parsePosTag(midPosTag);
+      if (!startPos) {
+        showErrorMsg('Invalid start position: must be in {\\pos(x,y)} format.');
+        document.getElementById('output').value = '';
+        return;
+      }
+      if (!endPos) {
+        showErrorMsg('Invalid end position: must be in {\\pos(x,y)} format.');
+        document.getElementById('output').value = '';
+        return;
+      }
+      let output = "";
+      for (let i=0; i<=frames; i++) {
+        let absMS = startMS + i*frameTime;
+        let progress = (absMS - effectStartMS) / (effectEndMS - effectStartMS);
+        progress = Math.max(0, Math.min(1, progress));
+        // Acceleration/Deceleration curves with extremity
+        if(accelType=="accel") progress = Math.pow(progress, extremity); // accelerate
+        else if(accelType=="decel") progress = 1 - Math.pow(1-progress, extremity); // decelerate
+        let t = progress;
+        let currentX, currentY;
+        if (midPos) {
+          // Quadratic Bezier: start -> mid -> end
+          currentX = Math.round((1-t)*(1-t)*startPos.x + 2*(1-t)*t*midPos.x + t*t*endPos.x);
+          currentY = Math.round((1-t)*(1-t)*startPos.y + 2*(1-t)*t*midPos.y + t*t*endPos.y);
+        } else {
+          // Linear
+          currentX = Math.round(startPos.x + (endPos.x-startPos.x)*t);
+          currentY = Math.round(startPos.y + (endPos.y-startPos.y)*t);
+        }
+        let lineStart = msToTime(startMS + i*frameTime);
+        let lineEnd = msToTime(startMS + (i+1)*frameTime);
+        output += `Dialogue: 0,${lineStart},${lineEnd},English,,0,0,0,,{\\pos(${currentX},${currentY})}${text}\n`;
+      }
+      document.getElementById('output').value = output;
+      // Animate output area
+      const outputAnim = document.getElementById('outputAnim');
+      const outputArea = document.getElementById('output');
+      if (outputAnim) {
+        outputAnim.innerHTML = '<span style="display:inline-block;transform:scale(0.7);animation:popout 0.7s cubic-bezier(.2,1.8,.5,1.1);">✔️</span>';
+        outputAnim.style.display = 'block';
+        setTimeout(()=>{outputAnim.style.display='none';}, 900);
+      }
+      if (outputArea) {
+        outputArea.classList.remove('output-highlight');
+        void outputArea.offsetWidth;
+        outputArea.classList.add('output-highlight');
+        setTimeout(()=>outputArea.classList.remove('output-highlight'), 700);
+      }
+    }
+    function copyOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) return;
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = document.querySelector('button[onclick="copyOutput()"]');
+        // Animate button
+        btn.style.transform = 'scale(1.08)';
+        setTimeout(()=>{btn.style.transform = '';}, 180);
+        // Show copied animation
+        let copied = document.createElement('span');
+        copied.className = 'copied-anim';
+        copied.innerText = 'Copied!';
+        btn.parentNode.appendChild(copied);
+        setTimeout(()=>{copied.remove();}, 1200);
+      });
+    }
+    // Button ripple effect
+    function buttonRipple(e) {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple-effect';
+      ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+      ripple.style.left = (e.clientX - rect.left - rect.width/2) + rect.width/2 + 'px';
+      ripple.style.top = (e.clientY - rect.top - rect.height/2) + rect.height/2 + 'px';
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    }
+    // Button ripple/scale effect
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          btn.style.transform = 'scale(0.96)';
+          setTimeout(()=>{btn.style.transform = '';}, 120);
+        });
+      });
+    });
+    // Output animation keyframes
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes popout {0%{transform:scale(0.7);} 60%{transform:scale(1.2);} 100%{transform:scale(1);}}`;
+    document.head.appendChild(style);
+    function showColorAnimUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Delay between letters (ms):</label>
+          <input type="number" id="delay" value="50" class="darkable">
+
+          <label>Duration of each color (ms):</label>
+          <input type="number" id="colorDuration" value="300" class="darkable">
+
+          <label>Duration of the line (ms):</label>
+          <input type="number" id="duration" value="7000" class="darkable">
+
+          <label>Colors (comma-separated):</label>
+          <input type="text" id="colors" value="red,green,blue,yellow" class="darkable">
+
+          <label>Text to animate:</label>
+          <input type="text" id="text" value="FUCK ANIPLEX" class="darkable">
+
+          <div class="coloranim-btns">
+            <button class="generate ripple" id="generateColorAnimBtn">Generate Color Animation</button>
+            <button class="generate ripple" id="copyColorAnimBtn" style="background:#ff7043;position:relative;">Copy to Clipboard</button>
+          </div>
+
+          <div class="result" style="margin-top:20px;">
+            <div class="coloranim-preview" id="colorAnimPreview"></div>
+            <div class="coloranim-output" id="colorAnimOutput"></div>
+          </div>
+        </div>
+      `;
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth;
+      mainContainer.classList.add('slide-in');
+      // Back button
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        mainContainer.classList.remove('slide-in');
+        mainContainer.classList.add('slide-out');
+        setTimeout(() => {
+          mainContainer.classList.remove('slide-out');
+          document.getElementById('effect-list').style.display = 'flex';
+          document.getElementById('effect-ui').innerHTML = '';
+          document.getElementById('main-subtitle').style.display = 'block';
+          document.getElementById('footer').style.display = 'none';
+          document.getElementById('main-title').textContent = 'Bruh subs';
+          setTimeout(() => mainContainer.classList.add('slide-in'), 10);
+        }, 500);
+      };
+      // Generate button
+      document.getElementById('generateColorAnimBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateColorAnim();
+      };
+      // Copy button
+      document.getElementById('copyColorAnimBtn').onclick = function(e) {
+        buttonRipple(e);
+        copyColorAnim();
+      };
+    }
+    function generateColorAnim() {
+      const delay = parseInt(document.getElementById('delay').value);
+      const colorDuration = parseInt(document.getElementById('colorDuration').value) || 300;
+      const duration = parseInt(document.getElementById('duration').value);
+      const colors = document.getElementById('colors').value.split(',').map(color => color.trim());
+      const text = document.getElementById('text').value;
+      const output = document.getElementById('colorAnimOutput');
+      const preview = document.getElementById('colorAnimPreview');
+      output.textContent = '';
+      preview.innerHTML = '';
+
+      let commands = '';
+      text.split('').forEach((letter, index) => {
+        let span = document.createElement('span');
+        span.textContent = letter;
+        preview.appendChild(span);
+        let currentTime = 0;
+        commands += `{`;
+        while (currentTime < duration) {
+          for (let color of colors) {
+            if (currentTime >= duration) break;
+            let colorStartTime = currentTime;
+            let colorEndTime = Math.min(currentTime + colorDuration, duration);
+            commands += `\\t(${index * delay + colorStartTime},${index * delay + colorEndTime},\\c&H${formatColor(color)}&)`;
+            setTimeout(() => {
+              span.style.color = color;
+            }, index * delay + colorStartTime);
+            currentTime += colorDuration;
+          }
+        }
+        commands += `}${letter}`;
+      });
+      output.textContent = commands.trim();
+      // Animate output area
+      output.classList.remove('output-highlight');
+      void output.offsetWidth;
+      output.classList.add('output-highlight');
+      setTimeout(()=>output.classList.remove('output-highlight'), 700);
+    }
+    function formatColor(color) {
+      const hexPattern = /^&H([a-fA-F0-9]{6})&$/;
+      const match = hexPattern.exec(color);
+      if (match) {
+        return match[1].toUpperCase();
+      } else {
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = color;
+        return ctx.fillStyle.substring(1).toUpperCase();
+      }
+    }
+    function copyColorAnim() {
+      const output = document.getElementById('colorAnimOutput');
+      navigator.clipboard.writeText(output.textContent)
+        .then(() => {
+          const btn = document.getElementById('copyColorAnimBtn');
+          btn.style.transform = 'scale(1.08)';
+          setTimeout(()=>{btn.style.transform = '';}, 180);
+          let copied = document.createElement('span');
+          copied.className = 'copied-anim';
+          copied.innerText = 'Copied!';
+          btn.parentNode.appendChild(copied);
+          setTimeout(()=>{copied.remove();}, 1200);
+        });
+    }
+    function showWaveUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Paste your ASS Dialogue line:</label>
+          <input id="waveLine" type="text" placeholder="Dialogue: 0,0:00:54.37,0:00:56.96,Romaji,,0,0,0,,{\pos(100,100)}Your text here">
+          <label>Default Size (e.g. 48):</label>
+          <input id="waveDefaultSize" type="number" value="48">
+          <label>Maximum Size (e.g. 64):</label>
+          <input id="waveMaxSize" type="number" value="64">
+          <label>Number of Waves (how many crests will pass through, e.g. 1):</label>
+          <input id="waveCount" type="number" value="1" min="1" max="10">
+          <div style="color:#888;font-size:0.98em;margin-bottom:8px;">1 = one swoop, 2 = two swoops, etc.</div>
+          <label>Wave Frequency (letters per wave, e.g. 6):</label>
+          <input id="waveFrequency" type="number" value="6">
+          <div style="color:#888;font-size:0.98em;margin-bottom:8px;">How many letters per wave crest (higher = more waves visible at once).</div>
+          <div id="waveBarContainer" style="margin: 30px 0 18px 0;"></div>
+          <button class="generate ripple" id="generateWaveBtn">Generate Wave Animation</button>
+          <button class="generate ripple" style="background:#ff7043;position:relative;" id="copyWaveBtn">Copy to Clipboard</button>
+          <label>Output:</label>
+          <textarea id="waveOutput"></textarea>
+        </div>
+      `;
+      // Setup wave window bar (like function 1)
+      setupWaveBar();
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth;
+      mainContainer.classList.add('slide-in');
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        mainContainer.classList.remove('slide-in');
+        mainContainer.classList.add('slide-out');
+        setTimeout(() => {
+          mainContainer.classList.remove('slide-out');
+          document.getElementById('effect-list').style.display = 'flex';
+          document.getElementById('effect-ui').innerHTML = '';
+          document.getElementById('main-subtitle').style.display = 'block';
+          document.getElementById('footer').style.display = 'none';
+          document.getElementById('main-title').textContent = 'Bruh subs';
+          setTimeout(() => mainContainer.classList.add('slide-in'), 10);
+        }, 500);
+      };
+      document.getElementById('generateWaveBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateWaveAnim();
+      };
+      document.getElementById('copyWaveBtn').onclick = function(e) {
+        buttonRipple(e);
+        const output = document.getElementById('waveOutput').value;
+        if (!output) return;
+        navigator.clipboard.writeText(output).then(() => {
+          const btn = document.getElementById('copyWaveBtn');
+          btn.style.transform = 'scale(1.08)';
+          setTimeout(()=>{btn.style.transform = '';}, 180);
+          let copied = document.createElement('span');
+          copied.className = 'copied-anim';
+          copied.innerText = 'Copied!';
+          btn.parentNode.appendChild(copied);
+          setTimeout(()=>{copied.remove();}, 1200);
+        });
+      };
+    }
+    function setupWaveBar() {
+      const container = document.getElementById('waveBarContainer');
+      container.innerHTML = `
+        <label style="display:block; margin-bottom:8px;">Wave Animation Window:</label>
+        <div id="waveBar" style="position:relative; height:38px; user-select:none;">
+          <div id="waveBarBg" style="background:#ffe0b2; border-radius:8px; height:16px; width:100%; position:absolute; top:10px;"></div>
+          <div id="waveBarEffect" style="background:#ff7043; border-radius:8px; height:16px; position:absolute; top:10px; cursor:pointer;"></div>
+          <div id="waveHandleStart" style="position:absolute; top:4px; left:0; width:16px; height:28px; background:#fff; border:2px solid #ff7043; border-radius:6px; cursor:ew-resize; box-shadow:0 2px 8px rgba(0,0,0,0.08);"></div>
+          <div id="waveHandleEnd" style="position:absolute; top:4px; right:0; width:16px; height:28px; background:#fff; border:2px solid #ff7043; border-radius:6px; cursor:ew-resize; box-shadow:0 2px 8px rgba(0,0,0,0.08);"></div>
+          <span id="waveBarTimeStart" style="position:absolute; left:0; top:28px; font-size:0.95rem; color:#ff9800;">0.00s</span>
+          <span id="waveBarTimeEnd" style="position:absolute; right:0; top:28px; font-size:0.95rem; color:#ff9800;">0.00s</span>
+        </div>
+        <div id="waveWindowDisplay" style="text-align:center; margin-top:12px; color:#ff7043; font-size:1.12rem; font-weight:700; letter-spacing:0.1px;"></div>
+      `;
+      // Bar logic (like function 1)
+      const bar = document.getElementById('waveBar');
+      const effectBar = document.getElementById('waveBarEffect');
+      const handleStart = document.getElementById('waveHandleStart');
+      const handleEnd = document.getElementById('waveHandleEnd');
+      const barStart = document.getElementById('waveBarTimeStart');
+      const barEnd = document.getElementById('waveBarTimeEnd');
+      const windowDisplay = document.getElementById('waveWindowDisplay');
+      let totalDuration = 1;
+      let effectStart = 0;
+      let effectEnd = 1;
+      function updateBar() {
+        // Try to get duration from input
+        let line = document.getElementById('waveLine').value;
+        let start = 0, end = 0;
+        if (line && line.startsWith('Dialogue:')) {
+          let parts = line.replace(/^Dialogue: /, '').split(',');
+          if (parts.length >= 3) {
+            start = timeToMS(parts[1]);
+            end = timeToMS(parts[2]);
+          }
+        }
+        totalDuration = Math.max(1, end - start);
+        barStart.innerText = '0.00s';
+        barEnd.innerText = (totalDuration / 1000).toFixed(2) + 's';
+        effectBar.style.left = (effectStart * 100) + '%';
+        effectBar.style.width = ((effectEnd - effectStart) * 100) + '%';
+        handleStart.style.left = `calc(${effectStart * 100}% - 0px)`;
+        handleEnd.style.left = `calc(${effectEnd * 100}% - 16px)`;
+        let windowMS = Math.round((effectEnd - effectStart) * totalDuration);
+        windowDisplay.innerText = 'Wave Window: ' + (windowMS / 1000).toFixed(2) + 's';
+      }
+      let dragging = null;
+      function onDrag(e, which) {
+        dragging = which;
+        e.preventDefault();
+      }
+      function onMove(e) {
+        if (!dragging) return;
+        const rect = bar.getBoundingClientRect();
+        let x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        let percent = Math.max(0, Math.min(1, x / rect.width));
+        if (dragging === 'start') {
+          effectStart = Math.min(percent, effectEnd - 0.01);
+        } else if (dragging === 'end') {
+          effectEnd = Math.max(percent, effectStart + 0.01);
+        }
+        updateBar();
+      }
+      function onUp() { dragging = null; }
+      handleStart.addEventListener('mousedown', e => onDrag(e, 'start'));
+      handleEnd.addEventListener('mousedown', e => onDrag(e, 'end'));
+      handleStart.addEventListener('touchstart', e => onDrag(e, 'start'));
+      handleEnd.addEventListener('touchstart', e => onDrag(e, 'end'));
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchmove', onMove);
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchend', onUp);
+      document.getElementById('waveLine').addEventListener('input', updateBar);
+      updateBar();
+      window._waveWindow = () => [effectStart, effectEnd, totalDuration];
+    }
+    function generateWaveAnim() {
+      clearErrorMsg();
+      const line = document.getElementById('waveLine').value;
+      const defaultSize = parseInt(document.getElementById('waveDefaultSize').value) || 48;
+      const maxSize = parseInt(document.getElementById('waveMaxSize').value) || 64;
+      const amplitude = maxSize - defaultSize;
+      const waveCount = parseInt(document.getElementById('waveCount').value) || 1;
+      const frequency = parseFloat(document.getElementById('waveFrequency').value) || 6;
+      const outputArea = document.getElementById('waveOutput');
+      outputArea.value = '';
+      if (!line.startsWith('Dialogue:')) {
+        showErrorMsg('Line must start with Dialogue:');
+        return;
+      }
+      let rest = line.replace(/^Dialogue: /, '');
+      const fields = [];
+      for (let i = 0; i < 9; i++) {
+        const idx = rest.indexOf(',');
+        if (idx === -1) {
+          fields.push(rest);
+          rest = '';
+        } else {
+          fields.push(rest.slice(0, idx));
+          rest = rest.slice(idx + 1);
+        }
+      }
+      fields.push(rest); // The rest is the text
+      if (fields.length < 10) {
+        showErrorMsg('Invalid Dialogue line format.');
+        return;
+      }
+      const [layer, start, end, style, name, marginL, marginR, marginV, effect, text] = fields;
+      let tagMatch = text.match(/^((?:\{[^}]+\})*)/);
+      let baseTags = tagMatch ? tagMatch[1] : '';
+      let textWithoutTags = text.replace(/^((?:\{[^}]+\})*)/, '');
+      let startTime = timeToMS(start);
+      let endTime = timeToMS(end);
+      let duration = endTime - startTime;
+      let frameStep = 40; // ms per frame
+      let chars = textWithoutTags.split('');
+      let lines = [];
+      // Get wave window
+      let [effectStart, effectEnd, totalDuration] = window._waveWindow ? window._waveWindow() : [0, 1, duration];
+      let waveStart = startTime + Math.round(totalDuration * effectStart);
+      let waveEnd = startTime + Math.round(totalDuration * effectEnd);
+      // Before wave: static
+      if (waveStart > startTime) {
+        lines.push(`Dialogue: 0,${msToTime(startTime)},${msToTime(waveStart)},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${textWithoutTags}`);
+      }
+      // During wave: animate
+      let waveDuration = waveEnd - waveStart;
+      let waveFrames = Math.max(1, Math.floor(waveDuration / frameStep));
+      let nextWaveStart = waveStart;
+      for (let w = 0; w < waveCount; w++) {
+        // For each wave, animate crest from left to right, then animate trailing falloff
+        let segmentStart = nextWaveStart;
+        let segmentEnd = waveStart + Math.round((w + 1) * waveDuration / waveCount);
+        let segmentDuration = segmentEnd - segmentStart;
+        let segmentFrames = Math.max(1, Math.floor(segmentDuration / frameStep));
+        let falloffFrames = Math.ceil(frequency / 2); // Extra frames for trailing falloff
+        // Animate crest moving left to right
+        for (let f = 0; f < segmentFrames; f++) {
+          let t = (f * frameStep);
+          let time = segmentStart + f * frameStep;
+          let progress = t / segmentDuration; // 0 to 1
+          let crestPos = progress * (chars.length - 1);
+          let frameText = '';
+          for (let i = 0; i < chars.length; i++) {
+            let size = defaultSize;
+            let dist = Math.abs(i - crestPos);
+            let falloff = 0;
+            if (dist < frequency / 2) {
+              falloff = 0.5 * (1 + Math.cos(Math.PI * dist / (frequency / 2)));
+            }
+            size = Math.round(defaultSize + amplitude * falloff);
+            frameText += `{\\fs${size}}${chars[i]}{\\r}`;
+          }
+          lines.push(`Dialogue: 0,${msToTime(time)},${msToTime(time + frameStep)},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${frameText}`);
+        }
+        // Animate trailing falloff after crest passes last letter
+        for (let f = 1; f <= falloffFrames; f++) {
+          let time = segmentEnd + (f - 1) * frameStep;
+          let crestPos = (chars.length - 1) + f; // Move crest past the end
+          let frameText = '';
+          for (let i = 0; i < chars.length; i++) {
+            let size = defaultSize;
+            let dist = Math.abs(i - crestPos);
+            let falloff = 0;
+            if (dist < frequency / 2) {
+              falloff = 0.5 * (1 + Math.cos(Math.PI * dist / (frequency / 2)));
+            }
+            size = Math.round(defaultSize + amplitude * falloff);
+            frameText += `{\\fs${size}}${chars[i]}{\\r}`;
+          }
+          lines.push(`Dialogue: 0,${msToTime(time)},${msToTime(time + frameStep)},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${frameText}`);
+        }
+        // Update nextWaveStart to be after this wave's falloff
+        nextWaveStart = segmentEnd + falloffFrames * frameStep;
+      }
+      // After wave: static
+      if (nextWaveStart < endTime) {
+        lines.push(`Dialogue: 0,${msToTime(nextWaveStart)},${end},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${textWithoutTags}`);
+      }
+      outputArea.value = lines.join('\n').replace(/\\n/g, '\n');
+      // Animate output area
+      outputArea.classList.remove('output-highlight');
+      void outputArea.offsetWidth;
+      outputArea.classList.add('output-highlight');
+      setTimeout(()=>outputArea.classList.remove('output-highlight'), 700);
+    }
+  </script>
+</body>
+</html>
