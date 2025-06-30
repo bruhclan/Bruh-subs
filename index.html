@@ -72,13 +72,19 @@
       letter-spacing: 0.2px;
     }
     .effect-list {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 260px);
+      gap: 32px 32px;
       margin-bottom: 10px;
+      justify-content: center;
+      align-items: center;
     }
     .effect-btn {
-      padding: 16px 0;
+      width: 260px;
+      height: 90px;
+      text-align: center;
+      word-break: break-word;
+      padding: 0 12px;
       border: none;
       border-radius: 14px;
       background: linear-gradient(90deg, #ff7043 60%, #ff9800 100%);
@@ -89,6 +95,9 @@
       transition: background 0.2s, box-shadow 0.2s;
       box-shadow: 0 2px 12px rgba(255, 112, 67, 0.10);
       letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .effect-btn:hover {
       background: linear-gradient(90deg, #ff9800 60%, #ff7043 100%);
@@ -237,6 +246,18 @@
         font-size: 1rem;
         padding: 22px 0 12px 0;
         border-radius: 0 0 16px 16px;
+      }
+      .effect-list {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        justify-content: center;
+      }
+      .effect-btn {
+        width: 100%;
+        max-width: 98vw;
+        min-width: 0;
+        height: 70px;
+        font-size: 1.08rem;
       }
     }
     .slide-in {
@@ -395,10 +416,146 @@
       height: 48px;
       font-size: 1.13rem;
     }
+    /* Custom tooltip for effect buttons */
+    .effect-btn[data-tooltip] {
+      position: relative;
+    }
+    .effect-btn[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%) translateX(18px);
+      background: linear-gradient(90deg, #fff7f0 60%, #ffe0e0 100%);
+      color: #ff7043;
+      font-size: 1.08rem;
+      font-weight: 600;
+      padding: 12px 22px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px 0 rgba(255, 112, 67, 0.13);
+      border: 1.5px solid #ffd6c2;
+      white-space: pre-line;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.2s;
+      max-width: 320px;
+      min-width: 180px;
+      width: max-content;
+      overflow-wrap: break-word;
+      text-align: left;
+    }
+    /* Dark mode for tooltip (must come after the above) */
+    body.dark .effect-btn[data-tooltip]:hover::after {
+      background: linear-gradient(90deg, #23242a 60%, #18191d 100%) !important;
+      color: #ff9800 !important;
+      border: 1.5px solid #444 !important;
+      box-shadow: 0 4px 18px 0 rgba(0,0,0,0.18) !important;
+      z-index: 9999 !important;
+    }
+    .effect-btn[data-tooltip]:hover::before,
+    .effect-btn[data-tooltip]::before {
+      display: none !important;
+    }
+    body.dark .effect-btn[data-tooltip]:hover::before,
+    body.dark .effect-btn[data-tooltip]::before {
+      display: none !important;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 32px;
+      vertical-align: middle;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, #ffe0b2 60%, #ffd6c2 100%);
+      border-radius: 32px;
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 6px;
+    }
+    .slider .icon {
+      font-size: 1.3rem;
+      transition: transform 0.3s, color 0.3s;
+      color: #ff9800;
+      z-index: 2;
+    }
+    .switch input:checked + .slider {
+      background: linear-gradient(90deg, #23242a 60%, #18191d 100%);
+      justify-content: flex-end;
+    }
+    .switch input:checked + .slider .icon {
+      color: #ffe082;
+      transform: rotate(-20deg);
+    }
+    .slider:before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      transition: transform 0.3s, background 0.3s;
+      z-index: 1;
+    }
+    .switch input:checked + .slider:before {
+      transform: translateX(24px);
+      background: #23242a;
+    }
+    /* Hide old icon button */
+    #darkModeToggle { display: none !important; }
+    /* Karaoke Decoder checkbox row styling */
+    .karaoke-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .karaoke-checkbox-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #ff7043;
+      margin: 0;
+    }
+    .karaoke-checkbox-row label {
+      margin: 0;
+      font-weight: 500;
+      color: #ff7043;
+      font-size: 1.01rem;
+      cursor: pointer;
+    }
+    /* Karaoke Decoder input/output always white */
+    .karaoke-lightbox,
+    .karaoke-lightbox.dark {
+      background: #fff !important;
+      color: #222b45 !important;
+      border-color: #ffd6c2 !important;
+    }
   </style>
 </head>
 <body>
-  <div id="darkModeToggle" style="position:fixed;top:24px;right:32px;z-index:1001;cursor:pointer;font-size:2rem;transition:color 0.3s;"></div>
+  <div id="darkModeToggleContainer" style="position:fixed;top:24px;right:32px;z-index:1001;">
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggleInput">
+      <span class="slider">
+        <span class="icon" id="darkModeIcon">☀️</span>
+      </span>
+    </label>
+  </div>
   <div class="bg-shape1"></div>
   <div class="bg-shape2"></div>
   <div class="main-container" id="main">
@@ -406,10 +563,11 @@
     <div class="subtitle" id="main-subtitle" style="margin-bottom:2.2em;">
       <span id="bruhclan-sub" style="display:block;font-size:1.35rem;color:#ff7043;font-weight:700;margin-top:0.1em;">Made by Bruh Clan</span>
     </div>
-    <div id="effect-list" style="display:flex;flex-direction:column;align-items:center;gap:2.5em;margin-top:0.5em;">
-      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('accel')">Acceleration/Deceleration Movement</button>
-      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
-      <button class="effect-btn" style="font-size:1.35rem;padding:1.25em 0.5em;min-width:420px;max-width:90vw;" onclick="selectEffect('wave')">Wave Text Animation</button>
+    <div id="effect-list" class="effect-list">
+      <button class="effect-btn" data-tooltip="Smoothly animates text with acceleration or deceleration movement." style="font-size:1.35rem;" onclick="selectEffect('accel')">Acceleration/Deceleration Movement</button>
+      <button class="effect-btn" data-tooltip="Animates each letter with a color sequence for a vibrant effect." style="font-size:1.35rem;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
+      <button class="effect-btn" data-tooltip="Creates a wave-like animation across the text." style="font-size:1.35rem;" onclick="selectEffect('wave')">Wave Text Animation</button>
+      <button class="effect-btn" data-tooltip="Separate karaoke timings and shows progressive syllable reveal with timings." style="font-size:1.35rem;" onclick="selectEffect('karaoke')">Karaoke Separator</button>
     </div>
     <div id="effect-ui"></div>
   </div>
@@ -423,7 +581,11 @@
       darkMode = on;
       document.body.classList.toggle('dark', on);
       document.body.classList.add('bg-fade');
-      document.getElementById('darkModeToggle').innerHTML = on ? '🌙' : '☀️';
+      // Update switch
+      const input = document.getElementById('darkModeToggleInput');
+      const icon = document.getElementById('darkModeIcon');
+      if (input) input.checked = on;
+      if (icon) icon.textContent = on ? '🌙' : '☀️';
       // Update bg shapes
       document.querySelectorAll('.bg-shape1, .bg-shape2').forEach(el => {
         el.style.opacity = on ? 0.10 : (el.classList.contains('bg-shape1') ? 0.18 : 0.15);
@@ -443,7 +605,15 @@
       document.getElementById('durationBarContainer').classList.toggle('dark', on);
       document.getElementById('resolveBarBg').classList.toggle('dark', on);
     }
-    document.getElementById('darkModeToggle').onclick = () => setDarkMode(!darkMode);
+    // Switch event
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('darkModeToggleInput');
+      if (input) {
+        input.addEventListener('change', function() {
+          setDarkMode(input.checked);
+        });
+      }
+    });
     setDarkMode(false);
     function selectEffect(effect) {
       // Hide main menu and subtitle
@@ -462,6 +632,9 @@
       } else if (effect === 'wave') {
         title.textContent = 'Wave Text Animation';
         showWaveUI();
+      } else if (effect === 'karaoke') {
+        title.textContent = 'Karaoke Separator';
+        showKaraokeDecoderUI();
       }
     }
     function backToMenu() {
@@ -469,7 +642,15 @@
       mainContainer.classList.remove('slide-in');
       mainContainer.classList.add('slide-out');
       setTimeout(() => {
-        document.getElementById('effect-list').style.display = 'flex';
+        // Restore the grid menu HTML
+        document.getElementById('effect-list').outerHTML = `
+          <div id="effect-list" class="effect-list">
+            <button class="effect-btn" data-tooltip="Smoothly animates text with acceleration or deceleration movement." style="font-size:1.35rem;" onclick="selectEffect('accel')">Acceleration/Deceleration Movement</button>
+            <button class="effect-btn" data-tooltip="Animates each letter with a color sequence for a vibrant effect." style="font-size:1.35rem;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
+            <button class="effect-btn" data-tooltip="Creates a wave-like animation across the text." style="font-size:1.35rem;" onclick="selectEffect('wave')">Wave Text Animation</button>
+            <button class="effect-btn" data-tooltip="Decodes \\k karaoke timings and shows progressive syllable reveal with timings." style="font-size:1.35rem;" onclick="selectEffect('karaoke')">Karaoke Separator</button>
+          </div>
+        `;
         document.getElementById('effect-ui').innerHTML = '';
         document.getElementById('main-subtitle').style.display = 'block';
         document.getElementById('footer').style.display = 'none';
@@ -961,17 +1142,7 @@
       // Back button
       document.getElementById('backBtn').onclick = function(e) {
         buttonRipple(e);
-        mainContainer.classList.remove('slide-in');
-        mainContainer.classList.add('slide-out');
-        setTimeout(() => {
-          mainContainer.classList.remove('slide-out');
-          document.getElementById('effect-list').style.display = 'flex';
-          document.getElementById('effect-ui').innerHTML = '';
-          document.getElementById('main-subtitle').style.display = 'block';
-          document.getElementById('footer').style.display = 'none';
-          document.getElementById('main-title').textContent = 'Bruh subs';
-          setTimeout(() => mainContainer.classList.add('slide-in'), 10);
-        }, 500);
+        backToMenu();
       };
       // Generate button
       document.getElementById('generateColorAnimBtn').onclick = function(e) {
@@ -1058,10 +1229,10 @@
         <div class="form-section">
           <label>Paste your ASS Dialogue line:</label>
           <input id="waveLine" type="text" placeholder="Dialogue: 0,0:00:54.37,0:00:56.96,Romaji,,0,0,0,,{\pos(100,100)}Your text here">
-          <label>Default Size (e.g. 48):</label>
-          <input id="waveDefaultSize" type="number" value="48">
-          <label>Maximum Size (e.g. 64):</label>
-          <input id="waveMaxSize" type="number" value="64">
+          <label>Default Size (e.g. 20):</label>
+          <input id="waveDefaultSize" type="number" value="20">
+          <label>Maximum Size (e.g. 30):</label>
+          <input id="waveMaxSize" type="number" value="30">
           <label>Number of Waves (how many crests will pass through, e.g. 1):</label>
           <input id="waveCount" type="number" value="1" min="1" max="10">
           <div style="color:#888;font-size:0.98em;margin-bottom:8px;">1 = one swoop, 2 = two swoops, etc.</div>
@@ -1082,17 +1253,7 @@
       mainContainer.classList.add('slide-in');
       document.getElementById('backBtn').onclick = function(e) {
         buttonRipple(e);
-        mainContainer.classList.remove('slide-in');
-        mainContainer.classList.add('slide-out');
-        setTimeout(() => {
-          mainContainer.classList.remove('slide-out');
-          document.getElementById('effect-list').style.display = 'flex';
-          document.getElementById('effect-ui').innerHTML = '';
-          document.getElementById('main-subtitle').style.display = 'block';
-          document.getElementById('footer').style.display = 'none';
-          document.getElementById('main-title').textContent = 'Bruh subs';
-          setTimeout(() => mainContainer.classList.add('slide-in'), 10);
-        }, 500);
+        backToMenu();
       };
       document.getElementById('generateWaveBtn').onclick = function(e) {
         buttonRipple(e);
@@ -1193,8 +1354,8 @@
     function generateWaveAnim() {
       clearErrorMsg();
       const line = document.getElementById('waveLine').value;
-      const defaultSize = parseInt(document.getElementById('waveDefaultSize').value) || 48;
-      const maxSize = parseInt(document.getElementById('waveMaxSize').value) || 64;
+      const defaultSize = parseInt(document.getElementById('waveDefaultSize').value) || 20;
+      const maxSize = parseInt(document.getElementById('waveMaxSize').value) || 30;
       const amplitude = maxSize - defaultSize;
       const waveCount = parseInt(document.getElementById('waveCount').value) || 1;
       const frequency = parseFloat(document.getElementById('waveFrequency').value) || 6;
@@ -1294,6 +1455,350 @@
         lines.push(`Dialogue: 0,${msToTime(nextWaveStart)},${end},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${textWithoutTags}`);
       }
       outputArea.value = lines.join('\n').replace(/\\n/g, '\n');
+      // Animate output area
+      outputArea.classList.remove('output-highlight');
+      void outputArea.offsetWidth;
+      outputArea.classList.add('output-highlight');
+      setTimeout(()=>outputArea.classList.remove('output-highlight'), 700);
+    }
+    function showKaraokeDecoderUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Paste your ASS Dialogue lines with {\\k} tags (one per line):</label>
+          <textarea id="karaokeInput" class="karaoke-lightbox" rows="4" style="resize:vertical;min-height:60px;" placeholder="Dialogue: 0,0:01:05.03,0:01:07.52,Romaji,,0,0,0,,{\\k29}Son{\\k16}na ...\nDialogue: 0,0:01:07.52,0:01:09.00,Romaji,,0,0,0,,{\\k20}Another{\\k15}Line"></textarea>
+          <div class="karaoke-checkbox-row">
+            <input type="checkbox" id="karaokeCurrentOnly">
+            <label for="karaokeCurrentOnly">Only show current \\k syllable</label>
+          </div>
+          <div class="karaoke-checkbox-row" style="align-items: center;">
+            <input type="checkbox" id="karaokeBouncyPoof">
+            <label for="karaokeBouncyPoof">Apply bouncy poof effect</label>
+            <button id="bouncySettingsBtn" type="button" style="margin-left:4px;padding:0 2px;font-size:1em;width:22px;height:22px;min-width:0;min-height:0;line-height:20px;border:none;background:#ffe0b2;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;" title="Adjust bouncy poof sizes">⚙️</button>
+          </div>
+          <div id="bouncySettingsPanel" style="display:none;margin:6px 0 10px 0;padding:0;">
+            <span style="display:inline-flex;align-items:center;gap:8px;">
+              <label for="bouncyStartSize" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">Start Size:</label>
+              <input type="number" id="bouncyStartSize" value="60" min="10" max="200" style="width:60px;height:32px;font-size:1.15em;padding:4px 10px;margin:0 12px 0 2px;border-radius:6px;background:#fff7f0;">
+              <label for="bouncyEndSize" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">End Size:</label>
+              <input type="number" id="bouncyEndSize" value="40" min="10" max="200" style="width:60px;height:32px;font-size:1.15em;padding:4px 10px;margin:0 0 0 2px;border-radius:6px;background:#fff7f0;">
+            </span>
+          </div>
+          <div class="karaoke-checkbox-row" style="align-items: center;">
+            <input type="checkbox" id="karaokeSlideEffect">
+            <label for="karaokeSlideEffect">Apply slide effect to each \\k</label>
+            <button id="slideSettingsBtn" type="button" style="margin-left:4px;padding:0 2px;font-size:1em;width:22px;height:22px;min-width:0;min-height:0;line-height:20px;border:none;background:#ffe0b2;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;" title="Adjust slide effect settings">⚙️</button>
+          </div>
+          <div id="slideEffectInputs" style="display:none;margin:6px 0 10px 0;padding:0;">
+            <span style="display:inline-flex;align-items:center;gap:8px;">
+              <label for="slideEndPos" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">Endpoint Position:</label>
+              <input type="text" id="slideEndPos" placeholder="{\pos(837,506)}" style="width:110px;height:28px;font-size:1em;padding:2px 6px;margin:0 12px 0 2px;border-radius:6px;background:#fff7f0;">
+              <label for="slideStartPos" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">Start Position (optional):</label>
+              <input type="text" id="slideStartPos" placeholder="{\pos(837,406)}" style="width:110px;height:28px;font-size:1em;padding:2px 6px;margin:0 0 0 2px;border-radius:6px;background:#fff7f0;">
+            </span>
+          </div>
+          <div class="karaoke-checkbox-row" style="align-items: center;">
+            <input type="checkbox" id="karaokeGrapefruitEffect">
+            <label for="karaokeGrapefruitEffect">Apply grapefruit effect</label>
+            <button id="grapefruitSettingsBtn" type="button" style="margin-left:4px;padding:0 2px;font-size:1em;width:22px;height:22px;min-width:0;min-height:0;line-height:20px;border:none;background:#ffe0b2;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;" title="Adjust grapefruit effect settings">⚙️</button>
+          </div>
+          <div id="grapefruitEffectInputs" style="display:none;margin:6px 0 10px 0;padding:0;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;flex-direction:column;">
+                <label for="grapefruitEndPos" style="font-size:0.97em;color:#ff7043;font-weight:600;margin-bottom:2px;">Endpoint Position:</label>
+                <input type="text" id="grapefruitEndPos" placeholder="{\pos(960,57)}" style="width:100%;height:28px;font-size:1em;padding:2px 6px;border-radius:6px;background:#fff7f0;">
+              </div>
+              <div style="display:flex;flex-direction:column;">
+                <label for="grapefruitStartPos" style="font-size:0.97em;color:#ff7043;font-weight:600;margin-bottom:2px;">Start Position (optional):</label>
+                <input type="text" id="grapefruitStartPos" placeholder="{\pos(960,157)}" style="width:100%;height:28px;font-size:1em;padding:2px 6px;border-radius:6px;background:#fff7f0;">
+              </div>
+              <div style="display:flex;flex-direction:column;">
+                <label for="grapefruitPreColor" style="font-size:0.97em;color:#ff7043;font-weight:600;margin-bottom:2px;">Pre-highlight color:</label>
+                <input type="text" id="grapefruitPreColor" placeholder="\\3c&HFFFFFF&\\4c&HE8434C&\\2c&HEFD3D4&\\c&HECCFD0&" style="width:100%;height:28px;font-size:1em;padding:2px 6px;border-radius:6px;background:#fff7f0;">
+              </div>
+              <div style="display:flex;flex-direction:column;">
+                <label for="grapefruitHighlightColor" style="font-size:0.97em;color:#ff7043;font-weight:600;margin-bottom:2px;">Highlight color:</label>
+                <input type="text" id="grapefruitHighlightColor" placeholder="\\3c&HFFFFFF&\\4c&HE8434C&\\2c&HEFD3D4&\\c&HD6969A&" style="width:100%;height:28px;font-size:1em;padding:2px 6px;border-radius:6px;background:#fff7f0;">
+              </div>
+            </div>
+          </div>
+          <button class="generate ripple" id="generateKaraokeBtn">Generate Karaoke timings</button>
+          <button class="generate ripple" style="background:#ff7043;position:relative;" id="copyKaraokeBtn">Copy to Clipboard</button>
+          <label>Output:</label>
+          <textarea id="karaokeOutput" class="karaoke-lightbox"></textarea>
+          <label style="margin-top: 18px; color: #ff7043; font-weight: 700; font-size: 1.08rem; letter-spacing: 0.1px;">Karaoke Activation Times:</label>
+          <div id="karaokeTimes" style="background: linear-gradient(90deg, #fff7f0 60%, #ffe0e0 100%); border-radius: 14px; padding: 18px 22px; margin-top: 10px; font-size: 1.13rem; color: #ff7043; font-family: 'Inter', Arial, sans-serif; box-shadow: 0 2px 8px rgba(255,112,67,0.08); border: 1.5px solid #ffd6c2; white-space: pre-wrap; word-break: break-all; overflow-x: auto; margin-bottom: 32px;"> </div>
+        </div>
+      `;
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth;
+      mainContainer.classList.add('slide-in');
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        backToMenu();
+      };
+      document.getElementById('generateKaraokeBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateKaraokeDecoder();
+      };
+      document.getElementById('copyKaraokeBtn').onclick = function(e) {
+        buttonRipple(e);
+        const output = document.getElementById('karaokeOutput').value;
+        if (!output) return;
+        navigator.clipboard.writeText(output).then(() => {
+          const btn = document.getElementById('copyKaraokeBtn');
+          btn.style.transform = 'scale(1.08)';
+          setTimeout(()=>{btn.style.transform = '';}, 180);
+          let copied = document.createElement('span');
+          copied.className = 'copied-anim';
+          copied.innerText = 'Copied!';
+          btn.parentNode.appendChild(copied);
+          setTimeout(()=>{copied.remove();}, 1200);
+        });
+      };
+      // Bouncy settings button logic
+      const bouncySettingsBtn = document.getElementById('bouncySettingsBtn');
+      const bouncySettingsPanel = document.getElementById('bouncySettingsPanel');
+      if (bouncySettingsBtn && bouncySettingsPanel) {
+        bouncySettingsBtn.onclick = function() {
+          bouncySettingsPanel.style.display = bouncySettingsPanel.style.display === 'none' ? 'block' : 'none';
+        };
+      }
+      // Slide effect UI logic
+      const slideEffectCheckbox = document.getElementById('karaokeSlideEffect');
+      const slideEffectInputs = document.getElementById('slideEffectInputs');
+      const slideSettingsBtn = document.getElementById('slideSettingsBtn');
+      if (slideEffectCheckbox && slideEffectInputs && slideSettingsBtn) {
+        slideEffectCheckbox.onchange = function() {
+          if (slideEffectCheckbox.checked) {
+            slideEffectInputs.style.display = 'block';
+          } else {
+            slideEffectInputs.style.display = 'none';
+          }
+        };
+        slideSettingsBtn.onclick = function() {
+          slideEffectInputs.style.display = (slideEffectInputs.style.display === 'none' || slideEffectInputs.style.display === '') ? 'block' : 'none';
+        };
+      }
+      // Grapefruit effect UI logic
+      const grapefruitEffectCheckbox = document.getElementById('karaokeGrapefruitEffect');
+      const grapefruitEffectInputs = document.getElementById('grapefruitEffectInputs');
+      const grapefruitSettingsBtn = document.getElementById('grapefruitSettingsBtn');
+      if (grapefruitEffectCheckbox && grapefruitEffectInputs && grapefruitSettingsBtn) {
+        grapefruitEffectCheckbox.onchange = function() {
+          if (grapefruitEffectCheckbox.checked) {
+            grapefruitEffectInputs.style.display = 'block';
+          } else {
+            grapefruitEffectInputs.style.display = 'none';
+          }
+        };
+        grapefruitSettingsBtn.onclick = function() {
+          grapefruitEffectInputs.style.display = (grapefruitEffectInputs.style.display === 'none' || grapefruitEffectInputs.style.display === '') ? 'block' : 'none';
+        };
+      }
+    }
+    function generateKaraokeDecoder() {
+      clearErrorMsg();
+      const input = document.getElementById('karaokeInput').value;
+      const outputArea = document.getElementById('karaokeOutput');
+      const timesArea = document.getElementById('karaokeTimes');
+      const currentOnly = document.getElementById('karaokeCurrentOnly')?.checked;
+      const bouncyPoof = document.getElementById('karaokeBouncyPoof')?.checked;
+      const bouncyStartSize = parseInt(document.getElementById('bouncyStartSize')?.value) || 60;
+      const bouncyEndSize = parseInt(document.getElementById('bouncyEndSize')?.value) || 40;
+      const slideEffect = document.getElementById('karaokeSlideEffect')?.checked;
+      const slideEndPos = document.getElementById('slideEndPos')?.value;
+      const slideStartPos = document.getElementById('slideStartPos')?.value;
+      const grapefruitEffect = document.getElementById('karaokeGrapefruitEffect')?.checked;
+      const grapefruitEndPos = document.getElementById('grapefruitEndPos')?.value;
+      const grapefruitStartPos = document.getElementById('grapefruitStartPos')?.value;
+      const grapefruitPreColor = document.getElementById('grapefruitPreColor')?.value;
+      const grapefruitHighlightColor = document.getElementById('grapefruitHighlightColor')?.value;
+      outputArea.value = '';
+      timesArea.textContent = '';
+      // Support multiple lines
+      const inputLines = input.split(/\r?\n/).filter(line => line.trim().length > 0);
+      let allLines = [];
+      let allTimeLogs = [];
+      // Helper functions
+      function timeToS(t) {
+        let p = t.split(':');
+        return parseInt(p[0])*3600 + parseInt(p[1])*60 + parseFloat(p[2]);
+      }
+      function sToTime(s) {
+        let h = Math.floor(s/3600);
+        let m = Math.floor((s%3600)/60);
+        let sec = (s%60).toFixed(2).padStart(5,'0');
+        return `${h}:${m.toString().padStart(2,'0')}:${sec}`;
+      }
+      // Process each input line
+      for (const line of inputLines) {
+        const match = line.match(/^Dialogue: ([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),(.+)$/);
+      if (!match) {
+          allTimeLogs.push('<span style="color:#ff5252;">Invalid input: ' + line.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+          continue;
+      }
+      const [_, layer, start, end, style, name, marginL, marginR, marginV, effect, text] = match;
+      // Extract {\kXX} and text segments
+      const kRegex = /\{\\k(\d+)\}([^\{]*)/g;
+      let kTags = [];
+      let totalK = 0;
+      let m;
+      while ((m = kRegex.exec(text)) !== null) {
+        kTags.push({ k: parseInt(m[1]), text: m[2] });
+        totalK += parseInt(m[1]);
+      }
+      if (kTags.length === 0) {
+          allTimeLogs.push('<span style="color:#ff5252;">No {\\k} tags found: ' + line.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+          continue;
+      }
+      const startS = timeToS(start);
+      const endS = timeToS(end);
+      const totalDuration = endS - startS;
+      const unitDuration = totalK ? totalDuration / totalK : 0;
+      // Precompute activation times
+      let activationTimes = [startS];
+      let timeLog = [];
+      for (let i = 0; i < kTags.length; i++) {
+        let prev = activationTimes[activationTimes.length-1];
+        let duration = kTags[i].k * unitDuration;
+        activationTimes.push(prev + duration);
+        let logLine = `${i+1}. \\k${kTags[i].k} → ${sToTime(prev)}`;
+        if (i < kTags.length - 1) logLine += ` (${(activationTimes[i+1]-activationTimes[i]).toFixed(2)}s)`;
+        else logLine += ` (${(endS-activationTimes[i]).toFixed(2)}s)`;
+        timeLog.push(logLine);
+      }
+      // Build output lines
+      let lines = [];
+      for (let i = 0; i < kTags.length; i++) {
+        let segStart = activationTimes[i];
+        let segEnd = activationTimes[i+1] || endS;
+        // Build the text
+        let displayText = '';
+          // Slide effect logic
+          let slideMoveTag = '';
+          if (slideEffect && slideEndPos) {
+            let endPos = parsePosTag(slideEndPos);
+            let startPos = parsePosTag(slideStartPos);
+            if (!endPos) {
+              allTimeLogs.push('<span style="color:#ff5252;">Invalid endpoint position for slide effect: ' + (slideEndPos || '') + '</span>');
+            } else {
+              if (!startPos) {
+                startPos = { x: endPos.x, y: endPos.y - 100 };
+              }
+              // Use \move(startX,startY,endX,endY)
+              slideMoveTag = `{\\move(${startPos.x},${startPos.y},${endPos.x},${endPos.y})}`;
+            }
+          }
+        if (currentOnly) {
+          // Only current syllable visible
+          for (let j = 0; j < kTags.length; j++) {
+              if (j === i) {
+                let t = kTags[j].text;
+                if (bouncyPoof && t.trim()) {
+                  let dur = (segEnd - segStart) * 1000;
+                  let t1 = Math.floor(dur * 0.3);
+                  let t2 = Math.floor(dur * 0.7);
+                  let t3 = Math.floor(dur);
+                  displayText += `{\\t(0,${t1},\\fs${bouncyStartSize}\\alpha&HFF&)\\t(${t1},${t2},\\fs${Math.round((bouncyStartSize+bouncyEndSize)/2)}\\alpha&H00&)\\t(${t2},${t3},\\fs${bouncyEndSize})}` + (slideMoveTag ? slideMoveTag : '') + t;
+                } else {
+                  displayText += '{\\alpha&H00&}' + (slideMoveTag ? slideMoveTag : '') + t;
+                }
+              } else {
+                displayText += '{\\alpha&HFF&}' + kTags[j].text;
+              }
+          }
+        } else {
+          // Progressive reveal (default)
+          let revealed = '', hidden = '';
+          for (let j = 0; j < kTags.length; j++) {
+              if (j <= i) {
+                let t = kTags[j].text;
+                if (bouncyPoof && t.trim()) {
+                  let segS = activationTimes[j];
+                  let segE = activationTimes[j+1] || endS;
+                  let dur = (segE - segS) * 1000;
+                  let t1 = Math.floor(dur * 0.3);
+                  let t2 = Math.floor(dur * 0.7);
+                  let t3 = Math.floor(dur);
+                  revealed += `{\\t(0,${t1},\\fs${bouncyStartSize}\\alpha&HFF&)\\t(${t1},${t2},\\fs${Math.round((bouncyStartSize+bouncyEndSize)/2)}\\alpha&H00&)\\t(${t2},${t3},\\fs${bouncyEndSize})}` + (slideMoveTag ? slideMoveTag : '') + t;
+                } else {
+                  revealed += (slideMoveTag ? slideMoveTag : '') + t;
+                }
+              }
+            else hidden += kTags[j].text;
+          }
+          if (revealed) displayText += '{\\alpha&H00&}' + revealed;
+          if (hidden) displayText += '{\\alpha&HFF&}' + hidden;
+        }
+          // Grapefruit effect logic
+          if (grapefruitEffect && grapefruitEndPos && grapefruitPreColor && grapefruitHighlightColor) {
+            let endPos = parsePosTag(grapefruitEndPos);
+            let startPos = parsePosTag(grapefruitStartPos);
+            if (!endPos) {
+              allTimeLogs.push('<span style="color:#ff5252;">Invalid endpoint position for grapefruit effect: ' + (grapefruitEndPos || '') + '</span>');
+            } else {
+              if (!startPos) {
+                startPos = { x: endPos.x, y: endPos.y - 100 };
+              }
+              // Build for current syllable
+              let before = '';
+              let current = kTags[i].text;
+              let after = '';
+              for (let j = 0; j < kTags.length; j++) {
+                if (j < i) before += kTags[j].text;
+                else if (j === i) continue;
+                else after += kTags[j].text;
+              }
+              // Line 1: moving highlight (only current syllable slides)
+              let moveBlock = `\\move(${startPos.x},${startPos.y},${endPos.x},${endPos.y})`;
+              let alphaBlock = '\\alpha&HFF&';
+              let highlightBlock = `\\alpha&H00&${grapefruitHighlightColor}`;
+              let preBlock = grapefruitPreColor;
+              let line1 = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,` +
+                `{${moveBlock}${alphaBlock}${preBlock}}${before}{${highlightBlock}}${current}{\\alpha&HFF&${preBlock}}${after}`;
+              // Line 2: static highlight at endpoint (all up to i highlighted, except last \k never gets highlight color)
+              let posBlock = `\\pos(${endPos.x},${endPos.y})${grapefruitHighlightColor}`;
+              let staticBefore = '';
+              let staticAfter = '';
+              if (i < kTags.length - 1) {
+                // For static lines, highlight up to i-1 (delay highlight by one \k)
+                for (let j = 0; j < kTags.length; j++) {
+                  if (j < i) staticBefore += kTags[j].text;
+                  else staticAfter += kTags[j].text;
+                }
+                let line2 = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,` +
+                  `{${posBlock}}${staticBefore}{${preBlock}}${staticAfter}`;
+                lines.push(line1);
+                lines.push(line2);
+              } else {
+                // Last \k: all but last in highlight, last in pre-highlight
+                let highlightPart = '';
+                let prePart = '';
+                for (let j = 0; j < kTags.length; j++) {
+                  if (j < kTags.length - 1) highlightPart += kTags[j].text;
+                  else prePart = kTags[j].text;
+                }
+                let line2 = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,` +
+                  `{${posBlock}}${highlightPart}{${preBlock}}${prePart}`;
+                lines.push(line1);
+                lines.push(line2);
+              }
+              continue;
+            }
+          }
+          let lineOut = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,${displayText}`;
+          lines.push(lineOut);
+        }
+        allLines.push(lines.join('\n'));
+        allTimeLogs.push(timeLog.join('<br>'));
+      }
+      outputArea.value = allLines.join('\n');
+      timesArea.innerHTML = allTimeLogs.join('<br><br>');
       // Animate output area
       outputArea.classList.remove('output-highlight');
       void outputArea.offsetWidth;
