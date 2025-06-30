@@ -1773,8 +1773,9 @@
                 }
                 let line2 = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,` +
                   `{${posBlock}}${staticBefore}{${preBlock}}${staticAfter}`;
-                lines.push(line1);
+                // Push static line first, then moving line
                 lines.push(line2);
+                lines.push(line1);
               } else {
                 // Last \k: all but last in highlight, last in pre-highlight
                 let highlightPart = '';
@@ -1785,8 +1786,9 @@
                 }
                 let line2 = `Dialogue: 0,${sToTime(segStart)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,` +
                   `{${posBlock}}${highlightPart}{${preBlock}}${prePart}`;
-                lines.push(line1);
+                // Push static line first, then moving line
                 lines.push(line2);
+                lines.push(line1);
               }
               continue;
             }
