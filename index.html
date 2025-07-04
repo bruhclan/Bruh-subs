@@ -568,6 +568,7 @@
       <button class="effect-btn" data-tooltip="Animates each letter with a color sequence for a vibrant effect." style="font-size:1.35rem;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
       <button class="effect-btn" data-tooltip="Creates a wave-like animation across the text." style="font-size:1.35rem;" onclick="selectEffect('wave')">Wave Text Animation</button>
       <button class="effect-btn" data-tooltip="Separate karaoke timings and shows progressive syllable reveal with timings." style="font-size:1.35rem;" onclick="selectEffect('karaoke')">Karaoke Separator</button>
+      <button class="effect-btn" data-tooltip="Creates progressive text reveal with bouncy poof effects on each syllable." style="font-size:1.35rem;" onclick="selectEffect('bouncyReveal')">Progressive Bouncy Reveal</button>
     </div>
     <div id="effect-ui"></div>
   </div>
@@ -635,6 +636,9 @@
       } else if (effect === 'karaoke') {
         title.textContent = 'Karaoke Separator';
         showKaraokeDecoderUI();
+      } else if (effect === 'bouncyReveal') {
+        title.textContent = 'Progressive Bouncy Reveal';
+        showBouncyRevealUI();
       }
     }
     function backToMenu() {
@@ -649,6 +653,7 @@
             <button class="effect-btn" data-tooltip="Animates each letter with a color sequence for a vibrant effect." style="font-size:1.35rem;" onclick="selectEffect('coloranim')">Letter-by-letter Color Animation</button>
             <button class="effect-btn" data-tooltip="Creates a wave-like animation across the text." style="font-size:1.35rem;" onclick="selectEffect('wave')">Wave Text Animation</button>
             <button class="effect-btn" data-tooltip="Separate karaoke timings and shows progressive syllable reveal with timings." style="font-size:1.35rem;" onclick="selectEffect('karaoke')">Karaoke Separator</button>
+            <button class="effect-btn" data-tooltip="Creates progressive text reveal with bouncy poof effects on each syllable." style="font-size:1.35rem;" onclick="selectEffect('bouncyReveal')">Progressive Bouncy Reveal</button>
           </div>
         `;
         document.getElementById('effect-ui').innerHTML = '';
@@ -685,12 +690,17 @@
           <select id="accelType">
             <option value="accel">Accelerate (speed up)</option>
             <option value="decel">Decelerate (slow down)</option>
+            <option value="constant">Constant (uniform speed)</option>
           </select>
 
           <label>Effect Extremity:</label>
           <input id="extremity" type="range" min="1" max="5" value="2" step="0.1" oninput="document.getElementById('extremityValue').innerText = this.value">
           <span id="extremityValue" style="font-weight:500; color:#ff7043;">2</span>
           <span style="font-size:0.95rem; color:#ff9800;">(Higher = more extreme acceleration/deceleration)</span>
+
+          <label>Custom Frame Count (optional):</label>
+          <input id="customFrames" type="number" placeholder="Leave empty for auto (20ms per frame)" min="10" max="1000">
+          <span style="font-size:0.95rem; color:#ff9800;">(More frames = smoother movement, especially on slower parts)</span>
 
           <div id="durationBarContainer" style="margin: 30px 0 18px 0;">
             <label style="display:block; margin-bottom:8px;">Effect Duration within Subtitle:</label>
@@ -773,12 +783,13 @@
       if (parts.length < 10) return null;
       const start = parts[1].trim();
       const end = parts[2].trim();
+      const style = parts[3].trim(); // Extract the style (e.g., "Romaji")
       // Text may contain commas, so join the rest
       const text = parts.slice(9).join(',').replace(/^ */, '');
       // Try to extract {\pos(x,y)}
       let posMatch = text.match(/\\pos\((\d+),(\d+)\)/);
       let posTag = posMatch ? `{\\pos(${posMatch[1]},${posMatch[2]})}` : '';
-      return { start, end, text, posTag };
+      return { start, end, text, posTag, style };
     }
     function msToASS(ms) {
       let total = ms/1000;
@@ -992,22 +1003,33 @@
       const midPosTag = document.getElementById('midPos').value;
       const accelType = document.getElementById('accelType').value;
       const extremity = parseFloat(document.getElementById('extremity').value);
+      const customFrames = document.getElementById('customFrames').value;
       const parsed = parseDialogueLine(dialogueLine);
       if (!parsed) {
         showErrorMsg('Invalid Dialogue line format.');
         document.getElementById('output').value = '';
         return;
       }
-      const { start, end, text } = parsed;
+      const { start, end, text, style } = parsed;
       const startMS = timeToMS(start);
       const endMS = timeToMS(end);
       const duration = endMS - startMS;
-      let frameTime = 20; // 20ms per frame for smoothness
-      let frames = Math.floor(duration / frameTime);
+      
+      // Calculate frame count and timing
+      let frames, frameTime;
+      if (customFrames && customFrames.trim() !== '') {
+        frames = parseInt(customFrames);
+        frameTime = duration / frames;
+      } else {
+        frameTime = 20; // 20ms per frame for smoothness
+        frames = Math.floor(duration / frameTime);
+      }
+      
       // Get effect range from bar
       let [s, e] = (window._effectRange ? window._effectRange() : [0,1]);
       let effectStartMS = startMS + Math.round(duration * s);
       let effectEndMS = startMS + Math.round(duration * e);
+      
       // Parse start, middle, and end pos
       const startPos = parsePosTag(startPosTag);
       const endPos = parsePosTag(endPosTag);
@@ -1022,15 +1044,51 @@
         document.getElementById('output').value = '';
         return;
       }
+      
       let output = "";
-      for (let i=0; i<=frames; i++) {
-        let absMS = startMS + i*frameTime;
+      
+      // Generate frame timings with adaptive spacing for smoother movement
+      let frameTimings = [];
+      if (customFrames && customFrames.trim() !== '') {
+        // Custom frame count: use adaptive timing for smoother movement
+        for (let i = 0; i <= frames; i++) {
+          let progress = i / frames;
+          let t = progress;
+          
+          // Apply movement type to determine timing distribution
+          if (accelType === "accel") {
+            t = Math.pow(progress, extremity); // more frames at start (slower)
+          } else if (accelType === "decel") {
+            t = 1 - Math.pow(1-progress, extremity); // more frames at end (slower)
+          } else if (accelType === "constant") {
+            t = progress; // uniform distribution
+          }
+          
+          let frameTime = startMS + t * duration;
+          frameTimings.push(frameTime);
+        }
+      } else {
+        // Auto timing: uniform 20ms intervals
+        for (let i = 0; i <= frames; i++) {
+          frameTimings.push(startMS + i * frameTime);
+        }
+      }
+      
+      for (let i = 0; i < frameTimings.length; i++) {
+        let absMS = frameTimings[i];
         let progress = (absMS - effectStartMS) / (effectEndMS - effectStartMS);
         progress = Math.max(0, Math.min(1, progress));
-        // Acceleration/Deceleration curves with extremity
-        if(accelType=="accel") progress = Math.pow(progress, extremity); // accelerate
-        else if(accelType=="decel") progress = 1 - Math.pow(1-progress, extremity); // decelerate
+        
+        // Apply movement type
         let t = progress;
+        if (accelType === "accel") {
+          t = Math.pow(progress, extremity); // accelerate
+        } else if (accelType === "decel") {
+          t = 1 - Math.pow(1-progress, extremity); // decelerate
+        } else if (accelType === "constant") {
+          t = progress; // constant speed (no modification)
+        }
+        
         let currentX, currentY;
         if (midPos) {
           // Quadratic Bezier: start -> mid -> end
@@ -1041,9 +1099,13 @@
           currentX = Math.round(startPos.x + (endPos.x-startPos.x)*t);
           currentY = Math.round(startPos.y + (endPos.y-startPos.y)*t);
         }
-        let lineStart = msToTime(startMS + i*frameTime);
-        let lineEnd = msToTime(startMS + (i+1)*frameTime);
-        output += `Dialogue: 0,${lineStart},${lineEnd},English,,0,0,0,,{\\pos(${currentX},${currentY})}${text}\n`;
+        
+        let lineStart = msToTime(absMS);
+        let lineEnd = msToTime(i < frameTimings.length - 1 ? frameTimings[i + 1] : absMS + frameTime);
+        
+        // Preserve original style instead of hardcoding "English"
+        const originalStyle = style || "Default";
+        output += `Dialogue: 0,${lineStart},${lineEnd},${originalStyle},,0,0,0,,{\\pos(${currentX},${currentY})}${text}\n`;
       }
       document.getElementById('output').value = output;
       // Animate output area
@@ -1676,7 +1738,7 @@
       let lines = [];
       for (let i = 0; i < kTags.length; i++) {
         let segStart = activationTimes[i];
-        let segEnd = activationTimes[i+1] || endS;
+        let segEnd = (i === kTags.length - 1) ? endS : (activationTimes[i+1] || endS);
         // Build the text
         let displayText = '';
           // Slide effect logic
@@ -1806,6 +1868,320 @@
       void outputArea.offsetWidth;
       outputArea.classList.add('output-highlight');
       setTimeout(()=>outputArea.classList.remove('output-highlight'), 700);
+    }
+
+    function showBouncyRevealUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Paste your ASS Dialogue lines with {\\k} tags (one per line):</label>
+          <textarea id="bouncyInput" class="karaoke-lightbox" rows="4" style="resize:vertical;min-height:60px;" placeholder="Dialogue: 0,0:00:50.29,0:00:52.66,Romaji,,0,0,0,,{\\k19}Ku{\\k15}ra{\\k16}i {\\k31}ton{\\k21}ne{\\k30}ru {\\k15}no {\\k34}ka{\\k56}be"></textarea>
+          
+          <div class="karaoke-checkbox-row" style="align-items: center;">
+            <input type="checkbox" id="bouncyCustomSize" checked>
+            <label for="bouncyCustomSize">Customize bouncy poof size</label>
+            <button id="bouncySizeSettingsBtn" type="button" style="margin-left:4px;padding:0 2px;font-size:1em;width:22px;height:22px;min-width:0;min-height:0;line-height:20px;border:none;background:#ffe0b2;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;" title="Adjust bouncy poof sizes">⚙️</button>
+          </div>
+          
+          <div id="bouncySizeSettingsPanel" style="display:none;margin:6px 0 10px 0;padding:0;">
+            <span style="display:inline-flex;align-items:center;gap:8px;">
+              <label for="bouncyStartSize" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">Bounce Size:</label>
+              <input type="number" id="bouncyStartSize" value="40" min="10" max="200" style="width:60px;height:32px;font-size:1.15em;padding:4px 10px;margin:0 12px 0 2px;border-radius:6px;background:#fff7f0;">
+              <label for="bouncyEndSize" style="font-size:0.97em;color:#ff7043;font-weight:600;margin:0 2px 0 0;">Normal Size:</label>
+              <input type="number" id="bouncyEndSize" value="20" min="10" max="200" style="width:60px;height:32px;font-size:1.15em;padding:4px 10px;margin:0 0 0 2px;border-radius:6px;background:#fff7f0;">
+            </span>
+          </div>
+          
+          <div class="karaoke-checkbox-row">
+            <input type="checkbox" id="bouncyShowTimings">
+            <label for="bouncyShowTimings">Show syllable timing breakdown</label>
+          </div>
+          
+          <button class="generate ripple" id="generateBouncyBtn">Generate Progressive Bouncy Reveal</button>
+          <button class="generate ripple" style="background:#ff7043;position:relative;" id="copyBouncyBtn">Copy to Clipboard</button>
+          
+          <label>Output:</label>
+          <textarea id="bouncyOutput" class="karaoke-lightbox"></textarea>
+          
+          <div id="bouncyTimings" style="background: linear-gradient(90deg, #fff7f0 60%, #ffe0e0 100%); border-radius: 14px; padding: 18px 22px; margin-top: 10px; font-size: 1.13rem; color: #ff7043; font-family: 'Inter', Arial, sans-serif; box-shadow: 0 2px 8px rgba(255,112,67,0.08); border: 1.5px solid #ffd6c2; white-space: pre-wrap; word-break: break-all; overflow-x: auto; margin-bottom: 32px; display: none;"> </div>
+        </div>
+      `;
+      
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth;
+      mainContainer.classList.add('slide-in');
+      
+      // Back button
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        backToMenu();
+      };
+      
+      // Generate button
+      document.getElementById('generateBouncyBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateBouncyReveal();
+      };
+      
+      // Copy button
+      document.getElementById('copyBouncyBtn').onclick = function(e) {
+        buttonRipple(e);
+        const output = document.getElementById('bouncyOutput').value;
+        if (!output) return;
+        navigator.clipboard.writeText(output).then(() => {
+          const btn = document.getElementById('copyBouncyBtn');
+          btn.style.transform = 'scale(1.08)';
+          setTimeout(()=>{btn.style.transform = '';}, 180);
+          let copied = document.createElement('span');
+          copied.className = 'copied-anim';
+          copied.innerText = 'Copied!';
+          btn.parentNode.appendChild(copied);
+          setTimeout(()=>{copied.remove();}, 1200);
+        });
+      };
+      
+      // Bouncy size settings button logic
+      const bouncySizeSettingsBtn = document.getElementById('bouncySizeSettingsBtn');
+      const bouncySizeSettingsPanel = document.getElementById('bouncySizeSettingsPanel');
+      const bouncyCustomSize = document.getElementById('bouncyCustomSize');
+      
+      if (bouncySizeSettingsBtn && bouncySizeSettingsPanel && bouncyCustomSize) {
+        bouncySizeSettingsBtn.onclick = function() {
+          bouncySizeSettingsPanel.style.display = bouncySizeSettingsPanel.style.display === 'none' ? 'block' : 'none';
+        };
+        
+        bouncyCustomSize.onchange = function() {
+          bouncySizeSettingsPanel.style.display = bouncyCustomSize.checked ? 'block' : 'none';
+        };
+      }
+    }
+
+    function generateBouncyReveal() {
+      clearErrorMsg();
+      const input = document.getElementById('bouncyInput').value;
+      const outputArea = document.getElementById('bouncyOutput');
+      const timingsArea = document.getElementById('bouncyTimings');
+      const finalEffect = document.getElementById('bouncyFinalEffect')?.checked;
+      const customSize = document.getElementById('bouncyCustomSize')?.checked;
+      const bouncyStartSize = parseInt(document.getElementById('bouncyStartSize')?.value) || 40;
+      const bouncyEndSize = parseInt(document.getElementById('bouncyEndSize')?.value) || 20;
+      const showTimings = document.getElementById('bouncyShowTimings')?.checked;
+      
+      outputArea.value = '';
+      timingsArea.textContent = '';
+      timingsArea.style.display = showTimings ? 'block' : 'none';
+      
+      // Support multiple lines
+      const inputLines = input.split(/\r?\n/).filter(line => line.trim().length > 0);
+      let allLines = [];
+      let allTimeLogs = [];
+      
+      // Helper functions (reused from karaoke)
+      function timeToS(t) {
+        let p = t.split(':');
+        return parseInt(p[0])*3600 + parseInt(p[1])*60 + parseFloat(p[2]);
+      }
+      function sToTime(s) {
+        let h = Math.floor(s/3600);
+        let m = Math.floor((s%3600)/60);
+        let sec = (s%60).toFixed(2).padStart(5,'0');
+        return `${h}:${m.toString().padStart(2,'0')}:${sec}`;
+      }
+      
+      // Process each input line
+      for (const line of inputLines) {
+        const match = line.match(/^Dialogue: ([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),([^,]*),(.+)$/);
+        if (!match) {
+          allTimeLogs.push('<span style="color:#ff5252;">Invalid input: ' + line.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+          continue;
+        }
+        
+        const [_, layer, start, end, style, name, marginL, marginR, marginV, effect, text] = match;
+        
+        // Extract {\\kXX} and text segments
+        const kRegex = /\\k(\d+)([^\\]*)/g;
+        let kTags = [];
+        let totalK = 0;
+        let m;
+        while ((m = kRegex.exec(text)) !== null) {
+          kTags.push({ k: parseInt(m[1]), text: m[2] });
+          totalK += parseInt(m[1]);
+        }
+        
+        if (kTags.length === 0) {
+          allTimeLogs.push('<span style="color:#ff5252;">No \\k tags found: ' + line.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>');
+          continue;
+        }
+        
+        const startS = timeToS(start);
+        const endS = timeToS(end);
+        const totalDuration = endS - startS;
+        const unitDuration = totalK ? totalDuration / totalK : 0;
+        
+        // Precompute activation times
+        let activationTimes = [startS];
+        let timeLog = [];
+        for (let i = 0; i < kTags.length; i++) {
+          let prev = activationTimes[activationTimes.length-1];
+          let duration = kTags[i].k * unitDuration;
+          activationTimes.push(prev + duration);
+          let logLine = `${i+1}. \\k${kTags[i].k} "${kTags[i].text}" → ${sToTime(prev)}`;
+          if (i < kTags.length - 1) logLine += ` (${(activationTimes[i+1]-activationTimes[i]).toFixed(2)}s)`;
+          else logLine += ` (${(endS-activationTimes[i]).toFixed(2)}s)`;
+          timeLog.push(logLine);
+        }
+        
+                 // Build progressive bouncy reveal lines
+         let lines = [];
+         
+         // Helper: clean up extra override blocks
+         function cleanASS(line) {
+           return line
+             // Remove all empty override blocks with or without whitespace
+             .replace(/\{\s*\}/g, '')
+             // Remove override blocks that only contain backslashes or resets
+             .replace(/\{\\[a-zA-Z]*\}/g, '')
+             // Remove override blocks that only contain resets and alpha
+             .replace(/\{\\r(\\alpha&HFF&)?\}/g, '')
+             // Remove consecutive override blocks
+             .replace(/(\}\{)+/g, '}{')
+             // Remove any leftover empty override blocks again
+             .replace(/\{\s*\}/g, ''); // FINAL: remove any empty override block
+         }
+         
+         // Phase 1: Initial state - all syllables hidden
+         lines.push(cleanASS(`Dialogue: 0,${sToTime(startS)},${sToTime(activationTimes[1] || endS)},${style},${name},${marginL},${marginR},${marginV},,{\\alpha&HFF&}${text.replace(/\\k\d+/g, '')}`));
+         
+         // Phase 2: Progressive reveal with bouncy poof
+         for (let i = 0; i < kTags.length; i++) {
+           let segStart = activationTimes[i];
+           let segEnd = (i === kTags.length - 1) ? endS : (activationTimes[i+1] || endS);
+           let segDuration = (segEnd - segStart) * 1000; // Convert to ms
+           
+           // Calculate timing for this syllable's bounce effect
+           let bounceStart = Math.floor(segDuration * 0.1); // Start bounce at 10%
+           let bouncePeak = Math.floor(segDuration * 0.3);  // Peak at 30%
+           let bounceEnd = Math.floor(segDuration * 0.7);   // End bounce at 70%
+           
+           // Line 1: Current syllable bounces, next syllable reset, rest hidden
+           let bounceText = '';
+           for (let j = 0; j < kTags.length; j++) {
+             if (j < i) {
+               // Already revealed syllables (normal)
+               bounceText += kTags[j].text;
+             } else if (j === i) {
+               // Current syllable with bounce effect
+               let currentText = kTags[j].text;
+               if (customSize && currentText.trim()) {
+                 bounceText += `{\\fs${bouncyStartSize}}${currentText}`;
+               } else {
+                 bounceText += `{\\fs40}${currentText}`;
+               }
+             } else if (j === i + 1) {
+               // Next syllable gets reset
+               bounceText += `{\\r\\alpha&HFF&}${kTags[j].text}`;
+             } else {
+               // Future syllables (hidden)
+               bounceText += `{\\alpha&HFF&}${kTags[j].text}`;
+             }
+           }
+           lines.push(cleanASS(`Dialogue: 0,${sToTime(segStart)},${sToTime(segStart + 0.02)},${style},${name},${marginL},${marginR},${marginV},,${bounceText}`));
+           
+           // Line 2: Current syllable normal, next syllable hidden, rest hidden
+           let normalText = '';
+           for (let j = 0; j < kTags.length; j++) {
+             if (j < i) {
+               // Already revealed syllables (normal)
+               normalText += kTags[j].text;
+             } else if (j === i) {
+               // Current syllable normal
+               normalText += kTags[j].text;
+             } else {
+               // Future syllables (hidden)
+               normalText += `{\\alpha&HFF&}${kTags[j].text}`;
+             }
+           }
+           lines.push(cleanASS(`Dialogue: 0,${sToTime(segStart + 0.02)},${sToTime(segEnd)},${style},${name},${marginL},${marginR},${marginV},,${normalText}`));
+         }
+        
+        // Phase 3: Final bounce effect on entire text (always enabled now)
+        let finalStart = activationTimes[kTags.length - 1];
+        let finalEnd = endS;
+        let finalDuration = (finalEnd - finalStart) * 1000;
+        
+        let finalBounceStart = Math.floor(finalDuration * 0.1);
+        let finalBouncePeak = Math.floor(finalDuration * 0.3);
+        let finalBounceEnd = Math.floor(finalDuration * 0.7);
+        
+        let finalText = text.replace(/\\k\d+/g, '');
+        if (customSize) {
+          finalText = `{\\t(0,${finalBounceStart},\\fs${bouncyEndSize})\\t(${finalBounceStart},${finalBouncePeak},\\fs${bouncyStartSize})\\t(${finalBouncePeak},${finalBounceEnd},\\fs${bouncyEndSize})}${finalText}`;
+        } else {
+          finalText = `{\\t(0,${finalBounceStart},\\fs${bouncyEndSize})\\t(${finalBounceStart},${finalBouncePeak},\\fs40)\\t(${finalBouncePeak},${finalBounceEnd},\\fs${bouncyEndSize})}${finalText}`;
+        }
+        
+        lines.push(`Dialogue: 0,${sToTime(finalStart)},${sToTime(finalEnd)},${style},${name},${marginL},${marginR},${marginV},,${finalText}`);
+        
+        // GHOST CLEANUP: Hide all text for a short duration after the last effect line
+        let ghostCleanupStart = endS;
+        let ghostCleanupEnd = endS + 0.01; // 10ms after end
+        let hiddenText = text.replace(/\\k\d+/g, '');
+        lines.push(`Dialogue: 0,${sToTime(ghostCleanupStart)},${sToTime(ghostCleanupEnd)},${style},${name},${marginL},${marginR},${marginV},,{\\alpha&HFF&}${hiddenText}`);
+        
+        // Remove any plain static lines from the effect period
+        lines = lines.filter(line => /\\[a-zA-Z]/.test(line));
+        // After all effect lines, find the latest end time
+        let effectEnd = Math.max(...lines.map(line => {
+          let match = line.match(/Dialogue: 0,[^,]*,([^,]*)/);
+          return match ? timeToS(match[1]) : 0;
+        }));
+        // If there is remaining time after the last effect, add a plain static line to fill it
+        if (effectEnd < endS) {
+          lines.push(`Dialogue: 0,${sToTime(effectEnd)},${sToTime(endS)},${style},${name},${marginL},${marginR},${marginV},,${hiddenText}`);
+        }
+        allLines.push(lines.join('\n'));
+        allTimeLogs.push(timeLog.join('<br>'));
+      }
+      
+      outputArea.value = allLines.join('\n');
+      timingsArea.innerHTML = allTimeLogs.join('<br><br>');
+      
+      // FINAL CLEANUP: Remove any stray {} from the entire output
+      outputArea.value = outputArea.value.replace(/\{\s*\}/g, '');
+
+      // FINAL BRACE CLEANUP: Collapse multiple braces and remove unmatched braces
+      function finalBraceCleanup(text) {
+        // Collapse multiple opening braces
+        text = text.replace(/\{+/g, '{');
+        // Collapse multiple closing braces
+        text = text.replace(/\}+/g, '}');
+        // Remove unmatched braces
+        let result = '';
+        let openCount = 0;
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === '{') {
+            // Check if there is a closing } ahead
+            let closeIdx = text.indexOf('}', i);
+            if (closeIdx === -1) continue; // skip this {, no matching }
+            openCount++;
+            result += '{';
+          } else if (text[i] === '}') {
+            if (openCount > 0) {
+              openCount--;
+              result += '}';
+            }
+            // else: skip this }, it's unmatched
+          } else {
+            result += text[i];
+          }
+        }
+        return result;
+      }
+      outputArea.value = finalBraceCleanup(outputArea.value);
     }
   </script>
 </body>
