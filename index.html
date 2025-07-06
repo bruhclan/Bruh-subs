@@ -569,6 +569,7 @@
       <button class="effect-btn" data-tooltip="Creates a wave-like animation across the text." style="font-size:1.35rem;" onclick="selectEffect('wave')">Wave Text Animation</button>
       <button class="effect-btn" data-tooltip="Separate karaoke timings and shows progressive syllable reveal with timings." style="font-size:1.35rem;" onclick="selectEffect('karaoke')">Karaoke Separator</button>
       <button class="effect-btn" data-tooltip="Creates progressive text reveal with bouncy poof effects on each syllable." style="font-size:1.35rem;" onclick="selectEffect('bouncyReveal')">Progressive Bouncy Reveal</button>
+      <button class="effect-btn" data-tooltip="Creates a progressive text reveal animation with customizable speed and direction." style="font-size:1.35rem;" onclick="selectEffect('progressiveReveal')">Progressive Text Reveal</button>
     </div>
     <div id="effect-ui"></div>
   </div>
@@ -639,6 +640,9 @@
       } else if (effect === 'bouncyReveal') {
         title.textContent = 'Progressive Bouncy Reveal';
         showBouncyRevealUI();
+      } else if (effect === 'progressiveReveal') {
+        title.textContent = 'Progressive Text Reveal';
+        showProgressiveRevealUI();
       }
     }
     function backToMenu() {
@@ -2182,6 +2186,314 @@
         return result;
       }
       outputArea.value = finalBraceCleanup(outputArea.value);
+    }
+
+    function showProgressiveRevealUI() {
+      const mainContainer = document.querySelector('.main-container');
+      const effectUI = document.getElementById('effect-ui');
+      mainContainer.classList.remove('slide-out');
+      effectUI.innerHTML = `
+        <div id="errorMsg" style="display:none;color:#fff;background:#ff5252;padding:10px 18px;border-radius:8px;margin-bottom:18px;font-weight:500;"></div>
+        <button class="back-btn ripple" id="backBtn">← Back</button>
+        <div class="form-section">
+          <label>Paste your ASS Dialogue line:</label>
+          <input id="progressiveLine" type="text" placeholder="Dialogue: 0,0:00:09.64,0:00:12.61,Romaji,,0,0,0,,utatte utatte ai tsutaeru saikyou shudan">
+          
+          <label>Animation Speed (ms per character):</label>
+          <input id="progressiveSpeed" type="number" value="50" min="10" max="500" step="10">
+          <span style="font-size:0.95rem; color:#ff9800;">(Lower = faster reveal, Higher = slower reveal)</span>
+          
+          <label>Animation Direction:</label>
+          <select id="progressiveDirection">
+            <option value="left">Left to Right</option>
+            <option value="right">Right to Left</option>
+            <option value="center">Center to Surroundings</option>
+            <option value="edges">Surroundings to Center</option>
+          </select>
+          
+          <div id="progressiveBarContainer" style="margin: 30px 0 18px 0;">
+            <label style="display:block; margin-bottom:8px;">Animation Range within Line:</label>
+            <div id="progressiveTextBar" style="display:flex;align-items:center;justify-content:center;gap:0;user-select:none;position:relative;"></div>
+            <div id="progressiveRangeDisplay" style="text-align:center; margin-top:12px; color:#ff7043; font-size:1.12rem; font-weight:700; letter-spacing:0.1px;"></div>
+          </div>
+          
+          <button class="generate ripple" id="generateProgressiveBtn">Generate Progressive Reveal</button>
+          <button class="generate ripple" style="background:#ff7043;position:relative;" id="copyProgressiveBtn">Copy to Clipboard</button>
+          
+          <label>Output:</label>
+          <textarea id="progressiveOutput"></textarea>
+        </div>
+      `;
+      
+      mainContainer.classList.remove('slide-in');
+      void mainContainer.offsetWidth;
+      mainContainer.classList.add('slide-in');
+      
+      // Setup progressive bar
+      setupProgressiveTextBar();
+      
+      // Back button
+      document.getElementById('backBtn').onclick = function(e) {
+        buttonRipple(e);
+        backToMenu();
+      };
+      
+      // Generate button
+      document.getElementById('generateProgressiveBtn').onclick = function(e) {
+        buttonRipple(e);
+        generateProgressiveReveal();
+      };
+      
+      // Copy button
+      document.getElementById('copyProgressiveBtn').onclick = function(e) {
+        buttonRipple(e);
+        const output = document.getElementById('progressiveOutput').value;
+        if (!output) return;
+        navigator.clipboard.writeText(output).then(() => {
+          const btn = document.getElementById('copyProgressiveBtn');
+          btn.style.transform = 'scale(1.08)';
+          setTimeout(()=>{btn.style.transform = '';}, 180);
+          let copied = document.createElement('span');
+          copied.className = 'copied-anim';
+          copied.innerText = 'Copied!';
+          btn.parentNode.appendChild(copied);
+          setTimeout(()=>{copied.remove();}, 1200);
+        });
+      };
+    }
+
+    function setupProgressiveTextBar() {
+      const container = document.getElementById('progressiveBarContainer');
+      const textBar = document.getElementById('progressiveTextBar');
+      const rangeDisplay = document.getElementById('progressiveRangeDisplay');
+      let startIdx = 0;
+      let endIdx = 0;
+      let chars = [];
+      function getText() {
+        let line = document.getElementById('progressiveLine').value;
+        let text = '';
+        if (line && line.startsWith('Dialogue:')) {
+          let rest = line.replace(/^Dialogue: /, '');
+          const fields = [];
+          for (let i = 0; i < 9; i++) {
+            const idx = rest.indexOf(',');
+            if (idx === -1) {
+              fields.push(rest);
+              rest = '';
+            } else {
+              fields.push(rest.slice(0, idx));
+              rest = rest.slice(idx + 1);
+            }
+          }
+          fields.push(rest);
+          if (fields.length >= 10) {
+            let tagMatch = fields[9].match(/^((?:\{[^}]+\})*)/);
+            text = fields[9].replace(/^((?:\{[^}]+\})*)/, '');
+          }
+        }
+        return text;
+      }
+      function renderBar() {
+        chars = getText().split('');
+        if (endIdx > chars.length) endIdx = chars.length;
+        if (startIdx > endIdx) startIdx = endIdx;
+        if (endIdx === 0 && chars.length > 0) endIdx = chars.length;
+        textBar.innerHTML = '';
+        // Bar background
+        const barBg = document.createElement('div');
+        barBg.style.position = 'absolute';
+        barBg.style.left = '0';
+        barBg.style.top = '50%';
+        barBg.style.transform = 'translateY(-50%)';
+        barBg.style.height = '16px';
+        barBg.style.width = '100%';
+        barBg.style.background = '#ffe0b2';
+        barBg.style.borderRadius = '8px';
+        textBar.appendChild(barBg);
+        // Bar effect (selected range)
+        const barEffect = document.createElement('div');
+        barEffect.style.position = 'absolute';
+        barEffect.style.left = (chars.length === 0 ? '0%' : (startIdx / chars.length * 100) + '%');
+        barEffect.style.top = '50%';
+        barEffect.style.transform = 'translateY(-50%)';
+        barEffect.style.height = '16px';
+        barEffect.style.width = (chars.length === 0 ? '0%' : ((endIdx - startIdx) / chars.length * 100) + '%');
+        barEffect.style.background = 'linear-gradient(90deg,#ff7043 60%,#ff9800 100%)';
+        barEffect.style.borderRadius = '8px';
+        textBar.appendChild(barEffect);
+        // Left handle
+        const leftHandle = document.createElement('div');
+        leftHandle.style.position = 'absolute';
+        leftHandle.style.left = (chars.length === 0 ? '0%' : (startIdx / chars.length * 100) + '%');
+        leftHandle.style.top = '50%';
+        leftHandle.style.transform = 'translate(-50%,-50%)';
+        leftHandle.style.width = '16px';
+        leftHandle.style.height = '32px';
+        leftHandle.style.background = '#fff';
+        leftHandle.style.border = '2px solid #ff7043';
+        leftHandle.style.borderRadius = '6px';
+        leftHandle.style.cursor = 'ew-resize';
+        leftHandle.style.zIndex = 2;
+        leftHandle.title = 'Drag to set animation start';
+        leftHandle.onmousedown = e => dragHandle(e, 'start');
+        textBar.appendChild(leftHandle);
+        // Right handle
+        const rightHandle = document.createElement('div');
+        rightHandle.style.position = 'absolute';
+        rightHandle.style.left = (chars.length === 0 ? '100%' : (endIdx / chars.length * 100) + '%');
+        rightHandle.style.top = '50%';
+        rightHandle.style.transform = 'translate(-50%,-50%)';
+        rightHandle.style.width = '16px';
+        rightHandle.style.height = '32px';
+        rightHandle.style.background = '#fff';
+        rightHandle.style.border = '2px solid #ff7043';
+        rightHandle.style.borderRadius = '6px';
+        rightHandle.style.cursor = 'ew-resize';
+        rightHandle.style.zIndex = 2;
+        rightHandle.title = 'Drag to set animation end';
+        rightHandle.onmousedown = e => dragHandle(e, 'end');
+        textBar.appendChild(rightHandle);
+        // Range display
+        rangeDisplay.innerText = `Selected: ${startIdx + 1} to ${endIdx} ("${chars.slice(startIdx, endIdx).join('')}")`;
+        window._progressiveCharRange = () => [startIdx, endIdx, chars.length];
+      }
+      let dragging = null;
+      function dragHandle(e, which) {
+        dragging = which;
+        document.body.style.userSelect = 'none';
+        function move(ev) {
+          const rect = textBar.getBoundingClientRect();
+          let x = ev.clientX - rect.left;
+          let percent = Math.max(0, Math.min(1, x / rect.width));
+          let idx = Math.round(percent * chars.length);
+          if (which === 'start') {
+            startIdx = Math.min(idx, endIdx - 1);
+          } else {
+            endIdx = Math.max(idx, startIdx + 1);
+          }
+          renderBar();
+        }
+        document.onmousemove = move;
+        document.onmouseup = () => {
+          dragging = null;
+          document.body.style.userSelect = '';
+          document.onmousemove = null;
+          document.onmouseup = null;
+        };
+      }
+      document.getElementById('progressiveLine').addEventListener('input', () => {
+        startIdx = 0;
+        endIdx = 0;
+        renderBar();
+      });
+      renderBar();
+    }
+
+    function generateProgressiveReveal() {
+      clearErrorMsg();
+      const line = document.getElementById('progressiveLine').value;
+      const speed = parseInt(document.getElementById('progressiveSpeed').value) || 50;
+      const direction = document.getElementById('progressiveDirection').value;
+      const outputArea = document.getElementById('progressiveOutput');
+      outputArea.value = '';
+      if (!line.startsWith('Dialogue:')) {
+        showErrorMsg('Line must start with Dialogue:');
+        return;
+      }
+      let rest = line.replace(/^Dialogue: /, '');
+      const fields = [];
+      for (let i = 0; i < 9; i++) {
+        const idx = rest.indexOf(',');
+        if (idx === -1) {
+          fields.push(rest);
+          rest = '';
+        } else {
+          fields.push(rest.slice(0, idx));
+          rest = rest.slice(idx + 1);
+        }
+      }
+      fields.push(rest); // The rest is the text
+      if (fields.length < 10) {
+        showErrorMsg('Invalid Dialogue line format.');
+        return;
+      }
+      const [layer, start, end, style, name, marginL, marginR, marginV, effect, text] = fields;
+      let tagMatch = text.match(/^((?:\{[^}]+\})*)/);
+      let baseTags = tagMatch ? tagMatch[1] : '';
+      let textWithoutTags = text.replace(/^((?:\{[^}]+\})*)/, '');
+      let startTime = timeToMS(start);
+      let endTime = timeToMS(end);
+      let duration = endTime - startTime;
+      // Get char range
+      let [startIdx, endIdx, totalChars] = window._progressiveCharRange ? window._progressiveCharRange() : [0, textWithoutTags.length, textWithoutTags.length];
+      if (endIdx > textWithoutTags.length) endIdx = textWithoutTags.length;
+      if (startIdx > endIdx) startIdx = endIdx;
+      // Get animation range (timing)
+      let animationStart = startTime;
+      let animationEnd = endTime;
+      let animationDuration = animationEnd - animationStart;
+      let chars = textWithoutTags.split('');
+      let staticPrefix = chars.slice(0, startIdx).join('');
+      let staticSuffix = chars.slice(endIdx).join('');
+      let animChars = chars.slice(startIdx, endIdx);
+      let lines = [];
+      // During animation: progressive reveal
+      let revealOrder = [];
+      if (direction === 'left') {
+        for (let i = 0; i < animChars.length; i++) revealOrder.push(i);
+      } else if (direction === 'right') {
+        for (let i = animChars.length - 1; i >= 0; i--) revealOrder.push(i);
+      } else if (direction === 'center') {
+        let mid = Math.floor((animChars.length - 1) / 2);
+        let left = mid, right = mid + 1;
+        revealOrder.push(mid);
+        while (left > 0 || right < animChars.length) {
+          if (right < animChars.length) revealOrder.push(right++);
+          if (left > 0) revealOrder.push(--left);
+        }
+      } else if (direction === 'edges') {
+        let left = 0, right = animChars.length - 1;
+        while (left <= right) {
+          if (left !== right) {
+            revealOrder.push(left);
+            revealOrder.push(right);
+          } else {
+            revealOrder.push(left);
+          }
+          left++;
+          right--;
+        }
+      }
+      let totalRevealTime = Math.max(animChars.length * speed, 1);
+      let timePerChar = totalRevealTime / animChars.length;
+      for (let i = 0; i < animChars.length; i++) {
+        let charTime = animationStart + (i * timePerChar);
+        let nextCharTime = (i === animChars.length - 1) ? animationEnd : (animationStart + ((i + 1) * timePerChar));
+        // Build revealed mask
+        let revealed = Array(animChars.length).fill(false);
+        for (let j = 0; j <= i; j++) {
+          revealed[revealOrder[j]] = true;
+        }
+        // Find first and last revealed indices
+        let first = revealed.indexOf(true);
+        let last = revealed.lastIndexOf(true);
+        let unrevealedLeft = first > 0 ? animChars.slice(0, first).join('') : '';
+        let revealedPart = (first !== -1 && last !== -1) ? animChars.slice(first, last + 1).map((c, idx) => revealed[first + idx] ? c : '').join('') : '';
+        let unrevealedRight = (last < animChars.length - 1) ? animChars.slice(last + 1).join('') : '';
+        let frameAnim = '';
+        if (unrevealedLeft) frameAnim += '{\\alpha&HFF&}' + unrevealedLeft + '{\\r}';
+        frameAnim += revealedPart;
+        if (unrevealedRight) frameAnim += '{\\alpha&HFF&}' + unrevealedRight + '{\\r}';
+        let frameText = staticPrefix + frameAnim + staticSuffix;
+        lines.push(`Dialogue: 0,${msToTime(charTime)},${msToTime(nextCharTime)},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${frameText}`);
+      }
+      // Final frame: show full text
+      lines.push(`Dialogue: 0,${msToTime(animationEnd)},${end},${style},${name},${marginL},${marginR},${marginV},,${baseTags}${staticPrefix}${animChars.join('')}${staticSuffix}`);
+      outputArea.value = lines.join('\n').replace(/\\n/g, '\n');
+      outputArea.classList.remove('output-highlight');
+      void outputArea.offsetWidth;
+      outputArea.classList.add('output-highlight');
+      setTimeout(()=>outputArea.classList.remove('output-highlight'), 700);
     }
   </script>
 </body>
